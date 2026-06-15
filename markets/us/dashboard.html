@@ -138,7 +138,7 @@ td.small,.small{font-size:11px}
   <span class="t-item">CASH <b>$1,000.00</b></span>
   <span class="t-item">DAY 0</span>
   <span class="t-item live">● LIVE</span>
-  <span class="t-item dim grow">updated 2026-06-15 01:25Z</span>
+  <span class="t-item dim grow">updated 2026-06-15 14:04Z</span>
 </header>
 
 <main>
@@ -191,11 +191,207 @@ td.small,.small{font-size:11px}
       </nav>
     </div>
     <div class="tabpanel active" data-panel="trades"><div class="tscroll"><div class="empty">No trades yet.</div></div></div>
-    <div class="tabpanel" data-panel="decisions"><div class="tscroll"><div class="empty">No decisions logged yet — the pre-market routine writes these.</div></div></div>
-    <div class="tabpanel" data-panel="research"><div class="tscroll"><div class="empty">No research rows yet.</div></div></div>
+    <div class="tabpanel" data-panel="decisions"><div class="tscroll"><table data-sortable><thead><tr><th>date</th><th>phase</th><th>sym</th><th>event</th><th class="num">tech</th><th class="num">res</th><th class="num">conv</th><th>reason</th><th>invalidation</th><th>outcome</th></tr></thead><tbody><tr>
+      <td class="mono dim">2026-06-15</td>
+      <td class="dim small">premarket</td>
+      <td class="sym">GOOGL</td>
+      <td><span class="tag flat">plan</span></td>
+      <td class="num">40</td>
+      <td class="num">60</td>
+      <td class="num strong pos">52</td>
+      <td class="dim small wide">Conviction 52 clears buy threshold but deferring: day-1 capital constraint (same as MSFT). Gemini AI/GCP thesis intact. 6th pick by conviction priority. Re-evaluate at midday (https://www.uncoveralpha.com/p/amazon-google-microsoft-meta-q1-earnings)</td>
+      <td class="dim small">Would enter at midday if capacity allows and market holds gains</td>
+      <td></td>
+    </tr><tr>
+      <td class="mono dim">2026-06-15</td>
+      <td class="dim small">premarket</td>
+      <td class="sym">MSFT</td>
+      <td><span class="tag flat">plan</span></td>
+      <td class="num">45</td>
+      <td class="num">55</td>
+      <td class="num strong pos">51</td>
+      <td class="dim small wide">Conviction 51 clears buy threshold but deferring: day-1 capital constraint (4 positions already at ~$760, keeping $240 buffer before FOMC tomorrow). Azure AI/Copilot thesis intact. Re-evaluate at midday (https://finance.yahoo.com/quote/MSFT/)</td>
+      <td class="dim small">Would enter at close below $395 on strength or midday add if capacity allows</td>
+      <td></td>
+    </tr><tr>
+      <td class="mono dim">2026-06-15</td>
+      <td class="dim small">premarket</td>
+      <td class="sym">AMZN</td>
+      <td><span class="tag buy">plan</span></td>
+      <td class="num">45</td>
+      <td class="num">60</td>
+      <td class="num strong pos">54</td>
+      <td class="dim small wide">AWS AI leadership; advertising segment rapid growth; Q1 earnings beat; oil falling improves shipping economics; EMA9&gt;EMA21 uptrend (https://www.uncoveralpha.com/p/amazon-google-microsoft-meta-q1-earnings)</td>
+      <td class="dim small">AWS revenue miss or guidance cut; close below $231</td>
+      <td></td>
+    </tr><tr>
+      <td class="mono dim">2026-06-15</td>
+      <td class="dim small">premarket</td>
+      <td class="sym">META</td>
+      <td><span class="tag buy">plan</span></td>
+      <td class="num">50</td>
+      <td class="num">70</td>
+      <td class="num strong pos">62</td>
+      <td class="dim small wide">AI advertising flywheel monetizing; analyst targets $697-$1015 vs current $569 (22-78% upside); Q1 earnings beat; Llama AI model strength; risk-on boosts ad spend (https://robinhood.com/us/en/stocks/META/)</td>
+      <td class="dim small">Ad revenue guide cut; antitrust action; close below $552</td>
+      <td></td>
+    </tr><tr>
+      <td class="mono dim">2026-06-15</td>
+      <td class="dim small">premarket</td>
+      <td class="sym">AVGO</td>
+      <td><span class="tag buy">plan</span></td>
+      <td class="num">55</td>
+      <td class="num">70</td>
+      <td class="num strong pos">64</td>
+      <td class="dim small wide">Custom AI ASIC/networking silicon demand surge; hyperscalers choosing custom chips; Q1 earnings beat; complementary to NVDA not overlapping (https://www.uncoveralpha.com/p/amazon-google-microsoft-meta-q1-earnings); risk-on amplifies semis</td>
+      <td class="dim small">Hyperscaler CapEx guidance cut; close below $368</td>
+      <td></td>
+    </tr><tr>
+      <td class="mono dim">2026-06-15</td>
+      <td class="dim small">premarket</td>
+      <td class="sym">NVDA</td>
+      <td><span class="tag buy">plan</span></td>
+      <td class="num">55</td>
+      <td class="num">75</td>
+      <td class="num strong pos">67</td>
+      <td class="dim small wide">Record Q1 FY2027 data center revenue $39.1B; Blackwell demand structural; Rubin pipeline; 62 analysts Strong Buy avg target $298.93 (https://intellectia.ai/blog/nvda-stock-earnings-analysis-may-2026); risk-on day from US-Iran peace deal amplifies semis; EMA9&gt;EMA21 bull cross</td>
+      <td class="dim small">Close below $194 on volume — EMA200 break; hyperscaler capex guide cut</td>
+      <td></td>
+    </tr></tbody></table></div></div>
+    <div class="tabpanel" data-panel="research"><div class="tscroll"><table data-sortable><thead><tr><th>date</th><th>sym</th><th>sector</th><th class="num">price</th><th class="num">gap</th><th class="num">rsi</th><th class="num">tech</th><th class="num">res</th><th>catalyst</th></tr></thead><tbody><tr>
+      <td class="mono dim">2026-06-15</td>
+      <td class="sym">COST</td>
+      <td class="dim small">consumer-staples</td>
+      <td class="num">$981.51</td>
+      <td class="num pos">+1.22%</td>
+      <td class="num">56</td>
+      <td class="num pos">35</td>
+      <td class="num pos">40</td>
+      <td class="dim small wide">Membership fee model; solid comps; dividend growth; prediction for $1000 target; but expensive P/E and defensive name underperforms in risk-on rally</td>
+    </tr><tr>
+      <td class="mono dim">2026-06-15</td>
+      <td class="sym">XOM</td>
+      <td class="dim small">energy</td>
+      <td class="num">$147.00</td>
+      <td class="num neg">-4.00%</td>
+      <td class="num">38</td>
+      <td class="num neg">-10</td>
+      <td class="num neg">-30</td>
+      <td class="dim small wide">US-Iran peace deal confirmed June 14: Strait of Hormuz to reopen; Trump declares end to blockade; WTI crude -5.11% to $80.54; direct near-term XOM earnings headwind</td>
+    </tr><tr>
+      <td class="mono dim">2026-06-15</td>
+      <td class="sym">UNH</td>
+      <td class="dim small">healthcare</td>
+      <td class="num">$408.52</td>
+      <td class="num pos">+1.22%</td>
+      <td class="num">42</td>
+      <td class="num pos">25</td>
+      <td class="num pos">20</td>
+      <td class="dim small wide">Recovery from 2025 CEO scandal/regulatory scrutiny; elevated medical cost ratios; uncertain trajectory</td>
+    </tr><tr>
+      <td class="mono dim">2026-06-15</td>
+      <td class="sym">LLY</td>
+      <td class="dim small">healthcare</td>
+      <td class="num">$1,131.50</td>
+      <td class="num pos">+1.22%</td>
+      <td class="num">57</td>
+      <td class="num pos">40</td>
+      <td class="num pos">45</td>
+      <td class="dim small wide">GLP-1 dominance (Mounjaro/Zepbound); strong pipeline; but at $1131 much of the thesis already priced in</td>
+    </tr><tr>
+      <td class="mono dim">2026-06-15</td>
+      <td class="sym">JPM</td>
+      <td class="dim small">financials</td>
+      <td class="num">$320.72</td>
+      <td class="num pos">+1.22%</td>
+      <td class="num">55</td>
+      <td class="num pos">30</td>
+      <td class="num pos">30</td>
+      <td class="dim small wide">FOMC starts tomorrow June 16 - uncertainty; possible hawkish bias shift from easing to neutral; inflation 4.2%; 8-4 May vote split; no rate change expected (97%+) but communication risk</td>
+    </tr><tr>
+      <td class="mono dim">2026-06-15</td>
+      <td class="sym">TSLA</td>
+      <td class="dim small">consumer-disc</td>
+      <td class="num">$406.43</td>
+      <td class="num pos">+1.22%</td>
+      <td class="num">62</td>
+      <td class="num pos">30</td>
+      <td class="num pos">35</td>
+      <td class="dim small wide">52wk range $288.77-$498.83; recovering but 19% below ATH; FSD progress; energy division growth; no near-term catalyst</td>
+    </tr><tr>
+      <td class="mono dim">2026-06-15</td>
+      <td class="sym">AAPL</td>
+      <td class="dim small">tech</td>
+      <td class="num">$292.00</td>
+      <td class="num pos">+1.22%</td>
+      <td class="num">38</td>
+      <td class="num pos">10</td>
+      <td class="num pos">20</td>
+      <td class="dim small wide">WWDC June 8: Siri AI unveiled; ATH $317.40 intraday then sold to $301.54 close; continued slide post-WWDC; monetization questions remain; analysts raised targets (MS $330, Bernstein $350) but stock declining</td>
+    </tr><tr>
+      <td class="mono dim">2026-06-15</td>
+      <td class="sym">MSFT</td>
+      <td class="dim small">tech</td>
+      <td class="num">$390.70</td>
+      <td class="num pos">+1.22%</td>
+      <td class="num">57</td>
+      <td class="num pos">45</td>
+      <td class="num pos">55</td>
+      <td class="dim small wide">Azure AI (OpenAI) revenue growing; Copilot monetization expanding; Q1 cloud revenue beat; stable recurring revenue base</td>
+    </tr><tr>
+      <td class="mono dim">2026-06-15</td>
+      <td class="sym">GOOGL</td>
+      <td class="dim small">comm-services</td>
+      <td class="num">$360.87</td>
+      <td class="num pos">+1.22%</td>
+      <td class="num">55</td>
+      <td class="num pos">40</td>
+      <td class="num pos">60</td>
+      <td class="dim small wide">Gemini AI in search/YouTube; GCP growth; custom TPU advantage; Q1 advertising beat; peace deal boosts global ad markets</td>
+    </tr><tr>
+      <td class="mono dim">2026-06-15</td>
+      <td class="sym">AMZN</td>
+      <td class="dim small">consumer-disc</td>
+      <td class="num">$238.55</td>
+      <td class="num pos">+1.22%</td>
+      <td class="num">59</td>
+      <td class="num pos">45</td>
+      <td class="num pos">60</td>
+      <td class="dim small wide">AWS AI leadership; advertising segment rapid growth; Q1 earnings beat; oil falling helps shipping economics</td>
+    </tr><tr>
+      <td class="mono dim">2026-06-15</td>
+      <td class="sym">META</td>
+      <td class="dim small">comm-services</td>
+      <td class="num">$569.01</td>
+      <td class="num pos">+1.22%</td>
+      <td class="num">60</td>
+      <td class="num pos">50</td>
+      <td class="num pos">70</td>
+      <td class="dim small wide">AI advertising flywheel; Llama AI model; Q1 earnings beat; analyst targets $697-$1015 vs current $569 (22-78% upside); Reality Labs scaling</td>
+    </tr><tr>
+      <td class="mono dim">2026-06-15</td>
+      <td class="sym">AVGO</td>
+      <td class="dim small">semis</td>
+      <td class="num">$382.57</td>
+      <td class="num pos">+1.22%</td>
+      <td class="num">58</td>
+      <td class="num pos">55</td>
+      <td class="num pos">70</td>
+      <td class="dim small wide">Custom AI ASIC/networking silicon demand surge; hyperscalers choosing custom chips over GPU; Q1 earnings beat; AI networking revenue outperforming</td>
+    </tr><tr>
+      <td class="mono dim">2026-06-15</td>
+      <td class="sym">NVDA</td>
+      <td class="dim small">semis</td>
+      <td class="num">$204.87</td>
+      <td class="num pos">+1.22%</td>
+      <td class="num">52</td>
+      <td class="num pos">55</td>
+      <td class="num pos">75</td>
+      <td class="dim small wide">Record Q1 FY2027 data center revenue $39.1B (+69% YoY); Blackwell demand strong; Rubin architecture pipeline; $20B bond offering; 62 analysts Strong Buy avg target $298.93</td>
+    </tr></tbody></table></div></div>
     <div class="tabpanel" data-panel="lessons"><div class="empty">No lessons yet — daily reviews write these.</div></div>
     <div class="tabpanel" data-panel="reviews"><div class="rcols"><div><h3>Daily</h3><div class="empty">None yet.</div></div><div><h3>Weekly</h3><div class="empty">None yet.</div></div></div></div>
-    <div class="tabpanel" data-panel="log"><div class="empty">Bot log is empty — routines append here as they run.</div></div>
+    <div class="tabpanel" data-panel="log"><pre class="log">2026-06-15T10:00:00.000Z premarket: planned 4 orders (NVDA/AVGO/META/AMZN buy MOO), 0 holds, 2 deferred buys (MSFT/GOOGL capital-constrained), regime=risk-on (US-Iran peace deal confirmed, WTI -5.11% to $80.54, ES futures +1.22%, VIX 17.68, SPX prior close 7431.46, 10Y yield ~4.49%, FOMC starts tomorrow no change expected 97%)</pre></div>
   </section>
 
   <footer class="foot">
