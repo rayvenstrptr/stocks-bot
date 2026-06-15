@@ -134,27 +134,27 @@ td.small,.small{font-size:11px}
 <div class="grain"></div>
 <header class="tape">
   <span class="brand">◆ STOCKS<span class="dim">·PAPER</span></span>
-  <span class="t-item">EQUITY <b>$1,000.00</b></span>
-  <span class="t-item">CASH <b>$1,000.00</b></span>
-  <span class="t-item">DAY 0</span>
+  <span class="t-item">EQUITY <b>$999.52</b></span>
+  <span class="t-item">CASH <b>$102.64</b></span>
+  <span class="t-item">DAY 1</span>
   <span class="t-item live">● LIVE</span>
-  <span class="t-item dim grow">updated 2026-06-15 14:04Z</span>
+  <span class="t-item dim grow">updated 2026-06-15 14:12Z</span>
 </header>
 
 <main>
   <section class="hero">
     <div class="hero-num">
       <div class="hlabel">Alpha vs S&amp;P 500</div>
-      <div class="alpha flat">—</div>
-      <div class="hlegend"><span class="k bot">▬ bot 0.00%</span><span class="k spx">▬ S&amp;P 500 —</span></div>
+      <div class="alpha neg">-0.05%</div>
+      <div class="hlegend"><span class="k bot">▬ bot -0.05%</span><span class="k spx">▬ S&amp;P 500 0.00%</span></div>
     </div>
     <div class="hero-stats">
-      <div class="stat"><div class="slabel">Equity</div><div class="sval ">$1,000.00</div><div class="ssub">of $1,000.00 start</div></div>
-      <div class="stat"><div class="slabel">Total return</div><div class="sval flat">0.00%</div></div>
+      <div class="stat"><div class="slabel">Equity</div><div class="sval ">$999.52</div><div class="ssub">of $1,000.00 start</div></div>
+      <div class="stat"><div class="slabel">Total return</div><div class="sval neg">-0.05%</div></div>
       <div class="stat"><div class="slabel">Realized P&L</div><div class="sval flat">$0.00</div></div>
       <div class="stat"><div class="slabel">Win rate</div><div class="sval ">—</div><div class="ssub">0 closed</div></div>
       <div class="stat"><div class="slabel">Avg R</div><div class="sval flat">—</div></div>
-      <div class="stat"><div class="slabel">Exposure</div><div class="sval ">0%</div><div class="ssub">0 open</div></div>
+      <div class="stat"><div class="slabel">Exposure</div><div class="sval ">90%</div><div class="ssub">4 open</div></div>
     </div>
   </section>
 
@@ -166,7 +166,51 @@ td.small,.small{font-size:11px}
   <div class="cols">
     <section class="panel">
       <div class="phead"><span class="pix">02</span><h2>Open positions</h2></div>
-      <div class="tscroll"><div class="empty">Flat — no open positions. Cash is a position too.</div></div>
+      <div class="tscroll"><table data-sortable><thead><tr><th>sym</th><th class="num">qty</th><th class="num">avg</th><th class="num">last</th><th class="num">value</th><th class="num">unreal $</th><th class="num">unreal %</th><th class="num">stop</th><th class="num">tp</th><th class="num">conv</th></tr></thead><tbody><tr>
+      <td class="sym">NVDA</td>
+      <td class="num">0.7292</td>
+      <td class="num">$207.81</td>
+      <td class="num">$207.71</td>
+      <td class="num">$151.46</td>
+      <td class="num neg">$-0.07</td>
+      <td class="num neg">-0.05%</td>
+      <td class="num dim">$194.10</td>
+      <td class="num dim">$221.00</td>
+      <td class="num">67</td>
+    </tr><tr>
+      <td class="sym">AVGO</td>
+      <td class="num">0.6467</td>
+      <td class="num">$383.69</td>
+      <td class="num">$383.50</td>
+      <td class="num">$248.01</td>
+      <td class="num neg">$-0.12</td>
+      <td class="num neg">-0.05%</td>
+      <td class="num dim">$368.23</td>
+      <td class="num dim">$404.08</td>
+      <td class="num">64</td>
+    </tr><tr>
+      <td class="sym">META</td>
+      <td class="num">0.4360</td>
+      <td class="num">$573.24</td>
+      <td class="num">$572.95</td>
+      <td class="num">$249.82</td>
+      <td class="num neg">$-0.13</td>
+      <td class="num neg">-0.05%</td>
+      <td class="num dim">$551.94</td>
+      <td class="num dim">$594.62</td>
+      <td class="num">62</td>
+    </tr><tr>
+      <td class="sym">AMZN</td>
+      <td class="num">1.0273</td>
+      <td class="num">$241.12</td>
+      <td class="num">$241.00</td>
+      <td class="num">$247.59</td>
+      <td class="num neg">$-0.12</td>
+      <td class="num neg">-0.05%</td>
+      <td class="num dim">$231.39</td>
+      <td class="num dim">$249.28</td>
+      <td class="num">54</td>
+    </tr></tbody></table></div>
     </section>
     <section class="panel">
       <div class="phead"><span class="pix">03</span><h2>Conviction calibration</h2><span class="dim small">hit-rate by conviction bucket</span></div>
@@ -190,8 +234,96 @@ td.small,.small{font-size:11px}
         <button class="tab" data-tab="log">Bot log</button>
       </nav>
     </div>
-    <div class="tabpanel active" data-panel="trades"><div class="tscroll"><div class="empty">No trades yet.</div></div></div>
+    <div class="tabpanel active" data-panel="trades"><div class="tscroll"><table data-sortable><thead><tr><th>time</th><th>sym</th><th>event</th><th class="num">qty</th><th class="num">fill</th><th class="num">notional</th><th class="num">p&l $</th><th class="num">p&l %</th><th class="num">R</th><th>reason</th></tr></thead><tbody><tr>
+      <td class="mono dim">06-15 14:11</td>
+      <td class="sym">AMZN</td>
+      <td><span class="tag buy">open</span></td>
+      <td class="num">1.0273</td>
+      <td class="num">$241.12</td>
+      <td class="num">$247.71</td>
+      <td class="num flat"></td>
+      <td class="num flat"></td>
+      <td class="num flat"></td>
+      <td class="dim small"></td>
+    </tr><tr>
+      <td class="mono dim">06-15 14:11</td>
+      <td class="sym">META</td>
+      <td><span class="tag buy">open</span></td>
+      <td class="num">0.4360</td>
+      <td class="num">$573.24</td>
+      <td class="num">$249.94</td>
+      <td class="num flat"></td>
+      <td class="num flat"></td>
+      <td class="num flat"></td>
+      <td class="dim small"></td>
+    </tr><tr>
+      <td class="mono dim">06-15 14:11</td>
+      <td class="sym">AVGO</td>
+      <td><span class="tag buy">open</span></td>
+      <td class="num">0.6467</td>
+      <td class="num">$383.69</td>
+      <td class="num">$248.13</td>
+      <td class="num flat"></td>
+      <td class="num flat"></td>
+      <td class="num flat"></td>
+      <td class="dim small"></td>
+    </tr><tr>
+      <td class="mono dim">06-15 14:10</td>
+      <td class="sym">NVDA</td>
+      <td><span class="tag buy">open</span></td>
+      <td class="num">0.7292</td>
+      <td class="num">$207.81</td>
+      <td class="num">$151.54</td>
+      <td class="num flat"></td>
+      <td class="num flat"></td>
+      <td class="num flat"></td>
+      <td class="dim small"></td>
+    </tr></tbody></table></div></div>
     <div class="tabpanel" data-panel="decisions"><div class="tscroll"><table data-sortable><thead><tr><th>date</th><th>phase</th><th>sym</th><th>event</th><th class="num">tech</th><th class="num">res</th><th class="num">conv</th><th>reason</th><th>invalidation</th><th>outcome</th></tr></thead><tbody><tr>
+      <td class="mono dim">2026-06-15</td>
+      <td class="dim small">open</td>
+      <td class="sym">AMZN</td>
+      <td><span class="tag buy">open</span></td>
+      <td class="num">45</td>
+      <td class="num">60</td>
+      <td class="num strong pos">54</td>
+      <td class="dim small wide">MOO fill; day-1 entry; AWS AI leadership + advertising growth + oil decline improves shipping economics</td>
+      <td class="dim small">AWS revenue miss or guide down; close below $231</td>
+      <td></td>
+    </tr><tr>
+      <td class="mono dim">2026-06-15</td>
+      <td class="dim small">open</td>
+      <td class="sym">META</td>
+      <td><span class="tag buy">open</span></td>
+      <td class="num">50</td>
+      <td class="num">70</td>
+      <td class="num strong pos">62</td>
+      <td class="dim small wide">MOO fill; day-1 entry; AI advertising flywheel monetizing with analyst targets 22-78% upside</td>
+      <td class="dim small">Ad revenue guide cut; antitrust action; close below $552</td>
+      <td></td>
+    </tr><tr>
+      <td class="mono dim">2026-06-15</td>
+      <td class="dim small">open</td>
+      <td class="sym">AVGO</td>
+      <td><span class="tag buy">open</span></td>
+      <td class="num">55</td>
+      <td class="num">70</td>
+      <td class="num strong pos">64</td>
+      <td class="dim small wide">MOO fill; day-1 entry; custom AI ASIC/networking silicon demand from hyperscalers</td>
+      <td class="dim small">Hyperscaler CapEx guidance cut; close below $368</td>
+      <td></td>
+    </tr><tr>
+      <td class="mono dim">2026-06-15</td>
+      <td class="dim small">open</td>
+      <td class="sym">NVDA</td>
+      <td><span class="tag buy">open</span></td>
+      <td class="num">55</td>
+      <td class="num">75</td>
+      <td class="num strong pos">67</td>
+      <td class="dim small wide">MOO fill; day-1 entry at open; Iran peace risk-on + NVDA data center structural demand</td>
+      <td class="dim small">Close below $194 on volume — EMA200 break</td>
+      <td></td>
+    </tr><tr>
       <td class="mono dim">2026-06-15</td>
       <td class="dim small">premarket</td>
       <td class="sym">GOOGL</td>
@@ -400,7 +532,7 @@ td.small,.small{font-size:11px}
     <div class="watch"><span class="chip">AAPL</span><span class="chip">MSFT</span><span class="chip">NVDA</span><span class="chip">AVGO</span><span class="chip">AMZN</span><span class="chip">GOOGL</span><span class="chip">META</span><span class="chip">NFLX</span><span class="chip">TSLA</span><span class="chip">JPM</span><span class="chip">LLY</span><span class="chip">UNH</span><span class="chip">XOM</span><span class="chip">COST</span><span class="chip">SPY</span><span class="chip">QQQ</span><span class="chip">XLK</span><span class="chip">XLE</span></div>
   </footer>
 </main>
-<script>const DATA={"equity":[]};
+<script>const DATA={"equity":[{"date":"2026-06-15","t":1781532765048,"iso":"2026-06-15T14:12:45.048Z","equity":999.52,"cash":102.64,"positions_value":896.88,"open_positions":4,"realized_pnl":0,"bench_level":7520,"bot_ret_since_incept":-0.05,"bench_ret_since_incept":0,"alpha":-0.05}]};
 document.querySelectorAll('.tab').forEach(function(b){
   b.addEventListener('click',function(){
     var t=b.getAttribute('data-tab');
