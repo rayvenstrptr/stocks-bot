@@ -1,12 +1,12 @@
 {
-  "updated": "2026-06-15T20:14:23.684Z",
+  "updated": "2026-06-15T20:22:16.082Z",
   "market": "US",
   "starting_capital": 1000,
   "currency": "USD",
   "inception_date": "2026-06-15",
   "inception_bench": 7520,
   "cash": 102.64,
-  "equity": 1000.42,
+  "equity": 1016.65,
   "positions": [
     {
       "symbol": "NVDA",
@@ -46,8 +46,8 @@
       "take_profit": 594.62,
       "opened": "2026-06-15T14:11:05.781Z",
       "decision_id": "20260615-META-1",
-      "high_water": 573.236475,
-      "last_price": 569.49,
+      "high_water": 593.48,
+      "last_price": 593.48,
       "conviction": 62
     },
     {
@@ -60,8 +60,8 @@
       "take_profit": 249.28,
       "opened": "2026-06-15T14:11:09.863Z",
       "decision_id": "20260615-AMZN-1",
-      "high_water": 241.1205,
-      "last_price": 241,
+      "high_water": 246.61,
+      "last_price": 246.61,
       "conviction": 54
     }
   ],
