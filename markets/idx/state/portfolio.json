@@ -1,0 +1,18 @@
+{
+  "updated": null,
+  "market": "IDX",
+  "starting_capital": 10000000,
+  "currency": "IDR",
+  "inception_date": null,
+  "inception_bench": null,
+  "cash": 10000000,
+  "equity": 10000000,
+  "positions": [],
+  "realized_pnl": 0,
+  "total_fees": 0,
+  "day_start_equity": 10000000,
+  "day_key": null,
+  "halted": false,
+  "halted_reason": null,
+  "_note": "IDR paper account (Rp 10,000,000 ≈ $625). With round 100-share lots, pricey names (UNTR ~Rp 2.45M/lot) afford only ~1 lot at the 25%/name cap — favor lower-priced liquid names to diversify. inception_date + inception_bench set by scripts/paper.mjs `equity` on the first run."
+}

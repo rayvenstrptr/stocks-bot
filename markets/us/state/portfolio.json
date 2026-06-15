@@ -1,0 +1,18 @@
+{
+  "updated": null,
+  "market": "US",
+  "starting_capital": 1000,
+  "currency": "USD",
+  "inception_date": null,
+  "inception_bench": null,
+  "cash": 1000,
+  "equity": 1000,
+  "positions": [],
+  "realized_pnl": 0,
+  "total_fees": 0,
+  "day_start_equity": 1000,
+  "day_key": null,
+  "halted": false,
+  "halted_reason": null,
+  "_note": "US paper account ($1000). inception_date + inception_bench set by scripts/paper.mjs `equity` on the first run."
+}

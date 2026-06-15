@@ -1,0 +1,230 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stock Bot — vs JCI (IDX Composite)</title>
+<style>
+:root{
+  --ink:#0a0e13; --ink2:#0e131b; --panel:#111824; --panel2:#0d141d; --line:#1c2733; --line2:#26323f;
+  --txt:#e9e6dd; --dim:#8893a3; --dim2:#5d6776; --amber:#f2b65a; --amber2:#caa15f;
+  --pos:#52d39a; --neg:#f06a72; --spx:#7d8aa0;
+  --serif:ui-serif,"New York",Georgia,"Times New Roman",serif;
+  --mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:
+  radial-gradient(120% 80% at 80% -10%, #15202e 0%, transparent 55%),
+  radial-gradient(90% 60% at 0% 0%, #121a26 0%, transparent 50%),
+  var(--ink);
+  color:var(--txt);font-family:var(--mono);font-size:13px;line-height:1.5;
+  background-attachment:fixed;
+  -webkit-font-smoothing:antialiased;
+  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:auto,auto,auto,52px 52px,52px 52px;background-blend-mode:normal,normal,normal,soft-light,soft-light;
+}
+.grain{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.05;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+main{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 20px 60px}
+b{font-weight:600}
+.dim{color:var(--dim)}.small{font-size:11px}.mono{font-family:var(--mono)}
+.pos{color:var(--pos)}.neg{color:var(--neg)}.flat{color:var(--dim)}
+.num,.sval,.alpha,td.num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+
+/* tape */
+.tape{position:sticky;top:0;z-index:5;display:flex;gap:22px;align-items:center;flex-wrap:wrap;
+  max-width:1180px;margin:0 auto;padding:11px 20px;border-bottom:1px solid var(--line);
+  background:rgba(10,14,19,.86);backdrop-filter:blur(8px);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.brand{font-weight:700;letter-spacing:.14em;color:var(--amber)}
+.t-item b{color:var(--txt);letter-spacing:0}
+.t-item.live{color:var(--pos)}.t-item.halt{color:var(--neg)}
+.grow{margin-left:auto;text-transform:none;letter-spacing:0}
+
+/* hero */
+.hero{display:grid;grid-template-columns:1.05fr 1.4fr;gap:24px;align-items:center;padding:40px 4px 30px}
+.hlabel,.slabel,.hlegend,.phead .small{text-transform:uppercase;letter-spacing:.14em;font-size:10.5px;color:var(--dim)}
+.alpha{font-family:var(--serif);font-size:clamp(64px,11vw,120px);line-height:.9;font-weight:600;letter-spacing:-.02em;margin:6px 0 12px}
+.alpha.pos{color:var(--pos);text-shadow:0 0 38px rgba(82,211,154,.32)}
+.alpha.neg{color:var(--neg);text-shadow:0 0 38px rgba(240,106,114,.30)}
+.alpha.flat{color:var(--amber);text-shadow:0 0 38px rgba(242,182,90,.28)}
+.hlegend{display:flex;gap:18px;letter-spacing:.04em}
+.k.bot{color:var(--amber)}.k.spx{color:var(--spx)}
+.hero-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.stat{background:linear-gradient(180deg,var(--panel),var(--panel2));padding:16px 16px 14px}
+.sval{font-family:var(--serif);font-size:27px;font-weight:600;letter-spacing:-.01em;margin-top:5px}
+.ssub{font-size:10.5px;color:var(--dim2);margin-top:3px}
+
+/* panels */
+.panel{background:linear-gradient(180deg,rgba(17,24,36,.92),rgba(13,20,29,.92));border:1px solid var(--line);
+  border-radius:12px;padding:18px 18px 16px;margin-top:18px;box-shadow:0 1px 0 rgba(255,255,255,.02) inset,0 18px 40px -30px #000}
+.phead{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:14px;border-bottom:1px solid var(--line);padding-bottom:11px}
+.phead h2{font-family:var(--serif);font-weight:600;font-size:19px;margin:0;letter-spacing:.01em}
+.pix{font-family:var(--mono);font-size:11px;color:var(--amber2);border:1px solid var(--line2);border-radius:4px;padding:2px 6px;letter-spacing:.1em}
+.cols{display:grid;grid-template-columns:1.5fr 1fr;gap:18px}
+
+/* chart */
+.chartwrap .eq{width:100%;height:auto;display:block}
+.eq .grid{stroke:var(--line);stroke-width:1}
+.eq .zero{stroke:var(--line2);stroke-width:1;stroke-dasharray:3 4}
+.eq .gtxt{fill:var(--dim2);font:10px var(--mono)}
+.eq .band{opacity:.16}.eq .band.up{fill:var(--amber)}.eq .band.down{fill:var(--neg)}
+.eq .botline{fill:none;stroke:var(--amber);stroke-width:2.2;stroke-linejoin:round;filter:drop-shadow(0 0 6px rgba(242,182,90,.35))}
+.eq .spxline{fill:none;stroke:var(--spx);stroke-width:1.6;stroke-dasharray:5 4;opacity:.8}
+.eq .dot{fill:var(--amber)}
+
+/* tables */
+.tscroll{overflow-x:auto;margin:0 -4px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{position:sticky;top:0;text-align:left;font-weight:500;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;font-size:10px;
+  padding:7px 9px;border-bottom:1px solid var(--line2);cursor:pointer;white-space:nowrap;background:var(--panel2)}
+th.num,td.num{text-align:right}
+td{padding:6px 9px;border-bottom:1px solid rgba(28,39,51,.6);white-space:nowrap}
+tbody tr:hover{background:rgba(242,182,90,.04)}
+td.sym{font-weight:600;color:var(--txt)}
+td.wide{white-space:normal;min-width:240px;max-width:360px}
+td.small,.small{font-size:11px}
+.strong{font-weight:700}
+.tag{display:inline-block;font-size:10px;text-transform:uppercase;letter-spacing:.06em;padding:2px 7px;border-radius:999px;border:1px solid var(--line2)}
+.tag.buy,.tag.plan{color:var(--pos);border-color:rgba(82,211,154,.4)}
+.tag.sell{color:var(--neg);border-color:rgba(240,106,114,.4)}
+.tag.flat{color:var(--dim)}
+.o-HIT{color:var(--pos);border-color:rgba(82,211,154,.5)}
+.o-MISS{color:var(--neg);border-color:rgba(240,106,114,.5)}
+.o-UNCLEAR{color:var(--amber2);border-color:rgba(202,161,95,.5)}
+.empty{color:var(--dim2);font-style:italic;padding:22px 6px;text-align:center;font-size:12px}
+
+/* calibration */
+.calib{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;align-items:end;height:160px;padding:6px 0 0}
+.cbar{display:flex;flex-direction:column;align-items:center;gap:5px;height:100%;justify-content:flex-end}
+.ctrack{width:100%;flex:1;display:flex;align-items:flex-end;background:repeating-linear-gradient(0deg,var(--line) 0 1px,transparent 1px 22px);border-radius:4px}
+.cfill{width:100%;border-radius:4px 4px 0 0;min-height:2px;transition:height .3s}
+.cfill.up{background:linear-gradient(180deg,var(--pos),rgba(82,211,154,.3))}
+.cfill.down{background:linear-gradient(180deg,var(--neg),rgba(240,106,114,.3))}
+.clab{font-size:10px;color:var(--dim)}.cval{font-size:12px;font-weight:600}.cn{font-size:9px;color:var(--dim2)}
+.ministats{display:flex;gap:20px;flex-wrap:wrap;margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:12px}
+
+/* tabs */
+.tabs{display:flex;gap:5px;margin-left:auto;flex-wrap:wrap}
+.tab{font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--dim);background:transparent;border:1px solid var(--line);
+  padding:5px 12px;border-radius:999px;cursor:pointer;transition:.15s}
+.tab:hover{color:var(--txt);border-color:var(--line2)}
+.tab.active{color:var(--ink);background:var(--amber);border-color:var(--amber);font-weight:600}
+.tabpanel{display:none}.tabpanel.active{display:block}
+.rcols{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.rcols h3,.rlist,.llist{font-size:12px}.rcols h3{font-family:var(--serif);font-weight:600;color:var(--amber2);margin:0 0 8px}
+.rlist,.llist{list-style:none;padding:0;margin:0}
+.rlist li,.llist li{padding:6px 0;border-bottom:1px solid rgba(28,39,51,.5)}
+.rd{font-weight:600}
+.llist li{line-height:1.6}
+.log{font-family:var(--mono);font-size:11px;color:var(--dim);background:var(--ink2);border:1px solid var(--line);border-radius:8px;
+  padding:12px;overflow-x:auto;white-space:pre;margin:0;max-height:340px}
+
+/* footer */
+.foot{margin-top:22px;padding-top:16px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:8px;font-size:11.5px;color:var(--dim)}
+.watch{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.chip{font-size:10px;color:var(--amber2);border:1px solid var(--line2);border-radius:4px;padding:2px 7px;letter-spacing:.04em}
+
+@media(max-width:880px){
+  .hero{grid-template-columns:1fr;gap:18px;padding:26px 0 18px}
+  .hero-stats{grid-template-columns:repeat(2,1fr)}
+  .cols{grid-template-columns:1fr}
+  .calib{height:130px}
+  .rcols{grid-template-columns:1fr}
+  .tape{gap:14px}
+}
+</style></head>
+<body>
+<div class="grain"></div>
+<header class="tape">
+  <span class="brand">◆ STOCKS<span class="dim">·PAPER</span></span>
+  <span class="t-item">EQUITY <b>Rp 10,000,000</b></span>
+  <span class="t-item">CASH <b>Rp 10,000,000</b></span>
+  <span class="t-item">DAY 0</span>
+  <span class="t-item live">● LIVE</span>
+  <span class="t-item dim grow">updated 2026-06-15 01:25Z</span>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="hero-num">
+      <div class="hlabel">Alpha vs JCI (IDX Composite)</div>
+      <div class="alpha flat">—</div>
+      <div class="hlegend"><span class="k bot">▬ bot 0.00%</span><span class="k spx">▬ JCI (IDX Composite) —</span></div>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><div class="slabel">Equity</div><div class="sval ">Rp 10,000,000</div><div class="ssub">of Rp 10,000,000 start</div></div>
+      <div class="stat"><div class="slabel">Total return</div><div class="sval flat">0.00%</div></div>
+      <div class="stat"><div class="slabel">Realized P&L</div><div class="sval flat">Rp 0</div></div>
+      <div class="stat"><div class="slabel">Win rate</div><div class="sval ">—</div><div class="ssub">0 closed</div></div>
+      <div class="stat"><div class="slabel">Avg R</div><div class="sval flat">—</div></div>
+      <div class="stat"><div class="slabel">Exposure</div><div class="sval ">0%</div><div class="ssub">0 open</div></div>
+    </div>
+  </section>
+
+  <section class="panel chartwrap">
+    <div class="phead"><span class="pix">01</span><h2>Equity vs JCI (IDX Composite)</h2><span class="dim small">cumulative return since inception · amber band = alpha</span></div>
+    <div class="empty">No equity history yet — the chart appears after the first daily review.</div>
+  </section>
+
+  <div class="cols">
+    <section class="panel">
+      <div class="phead"><span class="pix">02</span><h2>Open positions</h2></div>
+      <div class="tscroll"><div class="empty">Flat — no open positions. Cash is a position too.</div></div>
+    </section>
+    <section class="panel">
+      <div class="phead"><span class="pix">03</span><h2>Conviction calibration</h2><span class="dim small">hit-rate by conviction bucket</span></div>
+      <div class="calib"><div class="cbar"><div class="ctrack"><div class="cfill down" style="height:0%"></div></div><div class="clab"><0</div><div class="cval">·</div><div class="cn"></div></div><div class="cbar"><div class="ctrack"><div class="cfill down" style="height:0%"></div></div><div class="clab">0–25</div><div class="cval">·</div><div class="cn"></div></div><div class="cbar"><div class="ctrack"><div class="cfill down" style="height:0%"></div></div><div class="clab">25–40</div><div class="cval">·</div><div class="cn"></div></div><div class="cbar"><div class="ctrack"><div class="cfill down" style="height:0%"></div></div><div class="clab">40–60</div><div class="cval">·</div><div class="cn"></div></div><div class="cbar"><div class="ctrack"><div class="cfill down" style="height:0%"></div></div><div class="clab">60–80</div><div class="cval">·</div><div class="cn"></div></div><div class="cbar"><div class="ctrack"><div class="cfill down" style="height:0%"></div></div><div class="clab">80+</div><div class="cval">·</div><div class="cn"></div></div></div>
+      <div class="ministats">
+        <div><span class="dim">Profit factor</span> <b>—</b></div>
+        <div><span class="dim">Expectancy</span> <b class="flat">—/trade</b></div>
+        <div><span class="dim">Wins / Losses</span> <b>0 / 0</b></div>
+      </div>
+    </section>
+  </div>
+
+  <section class="panel">
+    <div class="phead"><span class="pix">04</span><h2>Ledger</h2>
+      <nav class="tabs">
+        <button class="tab active" data-tab="trades">Trades</button>
+        <button class="tab" data-tab="decisions">Decisions</button>
+        <button class="tab" data-tab="research">Research</button>
+        <button class="tab" data-tab="lessons">Lessons</button>
+        <button class="tab" data-tab="reviews">Reviews</button>
+        <button class="tab" data-tab="log">Bot log</button>
+      </nav>
+    </div>
+    <div class="tabpanel active" data-panel="trades"><div class="tscroll"><div class="empty">No trades yet.</div></div></div>
+    <div class="tabpanel" data-panel="decisions"><div class="tscroll"><div class="empty">No decisions logged yet — the pre-market routine writes these.</div></div></div>
+    <div class="tabpanel" data-panel="research"><div class="tscroll"><div class="empty">No research rows yet.</div></div></div>
+    <div class="tabpanel" data-panel="lessons"><div class="empty">No lessons yet — daily reviews write these.</div></div>
+    <div class="tabpanel" data-panel="reviews"><div class="rcols"><div><h3>Daily</h3><div class="empty">None yet.</div></div><div><h3>Weekly</h3><div class="empty">None yet.</div></div></div></div>
+    <div class="tabpanel" data-panel="log"><div class="empty">Bot log is empty — routines append here as they run.</div></div>
+  </section>
+
+  <footer class="foot">
+    <div><span class="dim">Mission</span> beat JCI (IDX Composite) · long-only · Rp 10,000,000 paper</div>
+    <div><span class="dim">Blend</span> tech 0.4 · research 0.6 <span class="dim">· thresholds</span> buy 40 · add 25 · trim -15 · close -30</div>
+    <div class="watch"><span class="chip">BBCA.JK</span><span class="chip">BBRI.JK</span><span class="chip">BMRI.JK</span><span class="chip">BBNI.JK</span><span class="chip">TLKM.JK</span><span class="chip">ASII.JK</span><span class="chip">UNTR.JK</span><span class="chip">ICBP.JK</span><span class="chip">INDF.JK</span><span class="chip">UNVR.JK</span><span class="chip">AMRT.JK</span><span class="chip">KLBF.JK</span><span class="chip">SMGR.JK</span><span class="chip">ADRO.JK</span><span class="chip">PGAS.JK</span><span class="chip">ANTM.JK</span><span class="chip">MDKA.JK</span><span class="chip">GOTO.JK</span></div>
+  </footer>
+</main>
+<script>const DATA={"equity":[]};
+document.querySelectorAll('.tab').forEach(function(b){
+  b.addEventListener('click',function(){
+    var t=b.getAttribute('data-tab');
+    document.querySelectorAll('.tab').forEach(function(x){x.classList.toggle('active',x===b)});
+    document.querySelectorAll('.tabpanel').forEach(function(p){p.classList.toggle('active',p.getAttribute('data-panel')===t)});
+  });
+});
+document.querySelectorAll('table[data-sortable] th').forEach(function(th,idx){
+  th.addEventListener('click',function(){
+    var tb=th.closest('table'),body=tb.tBodies[0],rows=[].slice.call(body.rows);
+    var asc=th._asc=!th._asc;
+    rows.sort(function(a,b){
+      var x=a.cells[idx].innerText.replace(/[$,%RA-Za-z ]/g,'').trim();
+      var y=b.cells[idx].innerText.replace(/[$,%RA-Za-z ]/g,'').trim();
+      var nx=parseFloat(x),ny=parseFloat(y);
+      if(!isNaN(nx)&&!isNaN(ny))return asc?nx-ny:ny-nx;
+      return asc?a.cells[idx].innerText.localeCompare(b.cells[idx].innerText):b.cells[idx].innerText.localeCompare(a.cells[idx].innerText);
+    });
+    rows.forEach(function(r){body.appendChild(r)});
+  });
+});
+</script>
+</body></html>

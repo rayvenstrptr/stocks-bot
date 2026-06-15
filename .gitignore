@@ -1,0 +1,11 @@
+# OS / editor
+.DS_Store
+
+# node
+node_modules/
+
+# atomic-write temp files (paper.mjs writes state via tmp+rename)
+*.tmp
+
+# one-off pipeline-test scratch
+*_TEST*

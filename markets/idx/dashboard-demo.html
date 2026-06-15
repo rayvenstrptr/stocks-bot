@@ -1,0 +1,956 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stock Bot — vs JCI (IDX Composite)</title>
+<style>
+:root{
+  --ink:#0a0e13; --ink2:#0e131b; --panel:#111824; --panel2:#0d141d; --line:#1c2733; --line2:#26323f;
+  --txt:#e9e6dd; --dim:#8893a3; --dim2:#5d6776; --amber:#f2b65a; --amber2:#caa15f;
+  --pos:#52d39a; --neg:#f06a72; --spx:#7d8aa0;
+  --serif:ui-serif,"New York",Georgia,"Times New Roman",serif;
+  --mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:
+  radial-gradient(120% 80% at 80% -10%, #15202e 0%, transparent 55%),
+  radial-gradient(90% 60% at 0% 0%, #121a26 0%, transparent 50%),
+  var(--ink);
+  color:var(--txt);font-family:var(--mono);font-size:13px;line-height:1.5;
+  background-attachment:fixed;
+  -webkit-font-smoothing:antialiased;
+  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:auto,auto,auto,52px 52px,52px 52px;background-blend-mode:normal,normal,normal,soft-light,soft-light;
+}
+.grain{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.05;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+main{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 20px 60px}
+b{font-weight:600}
+.dim{color:var(--dim)}.small{font-size:11px}.mono{font-family:var(--mono)}
+.pos{color:var(--pos)}.neg{color:var(--neg)}.flat{color:var(--dim)}
+.num,.sval,.alpha,td.num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+
+/* tape */
+.tape{position:sticky;top:0;z-index:5;display:flex;gap:22px;align-items:center;flex-wrap:wrap;
+  max-width:1180px;margin:0 auto;padding:11px 20px;border-bottom:1px solid var(--line);
+  background:rgba(10,14,19,.86);backdrop-filter:blur(8px);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.brand{font-weight:700;letter-spacing:.14em;color:var(--amber)}
+.t-item b{color:var(--txt);letter-spacing:0}
+.t-item.live{color:var(--pos)}.t-item.halt{color:var(--neg)}
+.grow{margin-left:auto;text-transform:none;letter-spacing:0}
+
+/* hero */
+.hero{display:grid;grid-template-columns:1.05fr 1.4fr;gap:24px;align-items:center;padding:40px 4px 30px}
+.hlabel,.slabel,.hlegend,.phead .small{text-transform:uppercase;letter-spacing:.14em;font-size:10.5px;color:var(--dim)}
+.alpha{font-family:var(--serif);font-size:clamp(64px,11vw,120px);line-height:.9;font-weight:600;letter-spacing:-.02em;margin:6px 0 12px}
+.alpha.pos{color:var(--pos);text-shadow:0 0 38px rgba(82,211,154,.32)}
+.alpha.neg{color:var(--neg);text-shadow:0 0 38px rgba(240,106,114,.30)}
+.alpha.flat{color:var(--amber);text-shadow:0 0 38px rgba(242,182,90,.28)}
+.hlegend{display:flex;gap:18px;letter-spacing:.04em}
+.k.bot{color:var(--amber)}.k.spx{color:var(--spx)}
+.hero-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.stat{background:linear-gradient(180deg,var(--panel),var(--panel2));padding:16px 16px 14px}
+.sval{font-family:var(--serif);font-size:27px;font-weight:600;letter-spacing:-.01em;margin-top:5px}
+.ssub{font-size:10.5px;color:var(--dim2);margin-top:3px}
+
+/* panels */
+.panel{background:linear-gradient(180deg,rgba(17,24,36,.92),rgba(13,20,29,.92));border:1px solid var(--line);
+  border-radius:12px;padding:18px 18px 16px;margin-top:18px;box-shadow:0 1px 0 rgba(255,255,255,.02) inset,0 18px 40px -30px #000}
+.phead{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:14px;border-bottom:1px solid var(--line);padding-bottom:11px}
+.phead h2{font-family:var(--serif);font-weight:600;font-size:19px;margin:0;letter-spacing:.01em}
+.pix{font-family:var(--mono);font-size:11px;color:var(--amber2);border:1px solid var(--line2);border-radius:4px;padding:2px 6px;letter-spacing:.1em}
+.cols{display:grid;grid-template-columns:1.5fr 1fr;gap:18px}
+
+/* chart */
+.chartwrap .eq{width:100%;height:auto;display:block}
+.eq .grid{stroke:var(--line);stroke-width:1}
+.eq .zero{stroke:var(--line2);stroke-width:1;stroke-dasharray:3 4}
+.eq .gtxt{fill:var(--dim2);font:10px var(--mono)}
+.eq .band{opacity:.16}.eq .band.up{fill:var(--amber)}.eq .band.down{fill:var(--neg)}
+.eq .botline{fill:none;stroke:var(--amber);stroke-width:2.2;stroke-linejoin:round;filter:drop-shadow(0 0 6px rgba(242,182,90,.35))}
+.eq .spxline{fill:none;stroke:var(--spx);stroke-width:1.6;stroke-dasharray:5 4;opacity:.8}
+.eq .dot{fill:var(--amber)}
+
+/* tables */
+.tscroll{overflow-x:auto;margin:0 -4px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{position:sticky;top:0;text-align:left;font-weight:500;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;font-size:10px;
+  padding:7px 9px;border-bottom:1px solid var(--line2);cursor:pointer;white-space:nowrap;background:var(--panel2)}
+th.num,td.num{text-align:right}
+td{padding:6px 9px;border-bottom:1px solid rgba(28,39,51,.6);white-space:nowrap}
+tbody tr:hover{background:rgba(242,182,90,.04)}
+td.sym{font-weight:600;color:var(--txt)}
+td.wide{white-space:normal;min-width:240px;max-width:360px}
+td.small,.small{font-size:11px}
+.strong{font-weight:700}
+.tag{display:inline-block;font-size:10px;text-transform:uppercase;letter-spacing:.06em;padding:2px 7px;border-radius:999px;border:1px solid var(--line2)}
+.tag.buy,.tag.plan{color:var(--pos);border-color:rgba(82,211,154,.4)}
+.tag.sell{color:var(--neg);border-color:rgba(240,106,114,.4)}
+.tag.flat{color:var(--dim)}
+.o-HIT{color:var(--pos);border-color:rgba(82,211,154,.5)}
+.o-MISS{color:var(--neg);border-color:rgba(240,106,114,.5)}
+.o-UNCLEAR{color:var(--amber2);border-color:rgba(202,161,95,.5)}
+.empty{color:var(--dim2);font-style:italic;padding:22px 6px;text-align:center;font-size:12px}
+
+/* calibration */
+.calib{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;align-items:end;height:160px;padding:6px 0 0}
+.cbar{display:flex;flex-direction:column;align-items:center;gap:5px;height:100%;justify-content:flex-end}
+.ctrack{width:100%;flex:1;display:flex;align-items:flex-end;background:repeating-linear-gradient(0deg,var(--line) 0 1px,transparent 1px 22px);border-radius:4px}
+.cfill{width:100%;border-radius:4px 4px 0 0;min-height:2px;transition:height .3s}
+.cfill.up{background:linear-gradient(180deg,var(--pos),rgba(82,211,154,.3))}
+.cfill.down{background:linear-gradient(180deg,var(--neg),rgba(240,106,114,.3))}
+.clab{font-size:10px;color:var(--dim)}.cval{font-size:12px;font-weight:600}.cn{font-size:9px;color:var(--dim2)}
+.ministats{display:flex;gap:20px;flex-wrap:wrap;margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:12px}
+
+/* tabs */
+.tabs{display:flex;gap:5px;margin-left:auto;flex-wrap:wrap}
+.tab{font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--dim);background:transparent;border:1px solid var(--line);
+  padding:5px 12px;border-radius:999px;cursor:pointer;transition:.15s}
+.tab:hover{color:var(--txt);border-color:var(--line2)}
+.tab.active{color:var(--ink);background:var(--amber);border-color:var(--amber);font-weight:600}
+.tabpanel{display:none}.tabpanel.active{display:block}
+.rcols{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.rcols h3,.rlist,.llist{font-size:12px}.rcols h3{font-family:var(--serif);font-weight:600;color:var(--amber2);margin:0 0 8px}
+.rlist,.llist{list-style:none;padding:0;margin:0}
+.rlist li,.llist li{padding:6px 0;border-bottom:1px solid rgba(28,39,51,.5)}
+.rd{font-weight:600}
+.llist li{line-height:1.6}
+.log{font-family:var(--mono);font-size:11px;color:var(--dim);background:var(--ink2);border:1px solid var(--line);border-radius:8px;
+  padding:12px;overflow-x:auto;white-space:pre;margin:0;max-height:340px}
+
+/* footer */
+.foot{margin-top:22px;padding-top:16px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:8px;font-size:11.5px;color:var(--dim)}
+.watch{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.chip{font-size:10px;color:var(--amber2);border:1px solid var(--line2);border-radius:4px;padding:2px 7px;letter-spacing:.04em}
+
+@media(max-width:880px){
+  .hero{grid-template-columns:1fr;gap:18px;padding:26px 0 18px}
+  .hero-stats{grid-template-columns:repeat(2,1fr)}
+  .cols{grid-template-columns:1fr}
+  .calib{height:130px}
+  .rcols{grid-template-columns:1fr}
+  .tape{gap:14px}
+}
+</style></head>
+<body>
+<div class="grain"></div>
+<header class="tape">
+  <span class="brand">◆ STOCKS<span class="dim">·PAPER</span></span>
+  <span class="t-item">EQUITY <b>Rp 10,238,251</b></span>
+  <span class="t-item">CASH <b>Rp 2,745,000</b></span>
+  <span class="t-item">DAY 19</span>
+  <span class="t-item live">● LIVE</span>
+  <span class="t-item dim grow">updated 2026-06-15 01:25Z</span>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="hero-num">
+      <div class="hlabel">Alpha vs JCI (IDX Composite)</div>
+      <div class="alpha pos">+1.62%</div>
+      <div class="hlegend"><span class="k bot">▬ bot +2.38%</span><span class="k spx">▬ JCI (IDX Composite) +0.76%</span></div>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><div class="slabel">Equity</div><div class="sval ">Rp 10,238,251</div><div class="ssub">of Rp 10,000,000 start</div></div>
+      <div class="stat"><div class="slabel">Total return</div><div class="sval pos">+2.38%</div></div>
+      <div class="stat"><div class="slabel">Realized P&L</div><div class="sval pos">Rp 184,000</div></div>
+      <div class="stat"><div class="slabel">Win rate</div><div class="sval ">63%</div><div class="ssub">8 closed</div></div>
+      <div class="stat"><div class="slabel">Avg R</div><div class="sval pos">0.41R</div></div>
+      <div class="stat"><div class="slabel">Exposure</div><div class="sval ">38%</div><div class="ssub">3 open</div></div>
+    </div>
+  </section>
+
+  <section class="panel chartwrap">
+    <div class="phead"><span class="pix">01</span><h2>Equity vs JCI (IDX Composite)</h2><span class="dim small">cumulative return since inception · amber band = alpha</span></div>
+    <svg viewBox="0 0 1000 340" preserveAspectRatio="none" class="eq" role="img" aria-label="Equity vs S&P 500">
+    <defs><linearGradient id="botg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--amber)" stop-opacity=".22"/><stop offset="1" stop-color="var(--amber)" stop-opacity="0"/></linearGradient></defs>
+    <line x1="8" x2="992" y1="24.0" y2="24.0" class="grid"/><text x="10" y="21.0" class="gtxt">2.8%</text><line x1="8" x2="992" y1="96.5" y2="96.5" class="grid"/><text x="10" y="93.5" class="gtxt">1.9%</text><line x1="8" x2="992" y1="169.0" y2="169.0" class="grid"/><text x="10" y="166.0" class="gtxt">1.0%</text><line x1="8" x2="992" y1="241.5" y2="241.5" class="grid"/><text x="10" y="238.5" class="gtxt">0.1%</text><line x1="8" x2="992" y1="314.0" y2="314.0" class="grid"/><text x="10" y="311.0" class="gtxt">-0.9%</text>
+    <line x1="8" x2="992" y1="246.4" y2="246.4" class="zero"/>
+    <path d="M8.0 256.7 L59.8 280.5 L111.6 262.3 L163.4 268.6 L215.2 248.8 L266.9 228.1 L318.7 206.7 L370.5 215.4 L422.3 231.3 L474.1 232.9 L525.9 217.0 L577.7 200.4 L629.5 178.1 L681.3 182.1 L733.1 144.0 L784.8 132.9 L836.6 149.6 L888.4 119.4 L940.2 93.2 L992.0 57.5 L992.0 186.1 L940.2 207.5 L888.4 231.3 L836.6 253.5 L784.8 236.1 L733.1 241.6 L681.3 246.4 L629.5 258.3 L577.7 242.4 L525.9 232.1 L474.1 257.5 L422.3 232.9 L370.5 206.7 L318.7 186.9 L266.9 178.9 L215.2 204.3 L163.4 194.8 L111.6 191.6 L59.8 207.5 L8.0 225.8 Z" class="band up"/>
+    <path d="M8.0 225.8 L59.8 207.5 L111.6 191.6 L163.4 194.8 L215.2 204.3 L266.9 178.9 L318.7 186.9 L370.5 206.7 L422.3 232.9 L474.1 257.5 L525.9 232.1 L577.7 242.4 L629.5 258.3 L681.3 246.4 L733.1 241.6 L784.8 236.1 L836.6 253.5 L888.4 231.3 L940.2 207.5 L992.0 186.1" class="spxline"/>
+    <path d="M8.0 256.7 L59.8 280.5 L111.6 262.3 L163.4 268.6 L215.2 248.8 L266.9 228.1 L318.7 206.7 L370.5 215.4 L422.3 231.3 L474.1 232.9 L525.9 217.0 L577.7 200.4 L629.5 178.1 L681.3 182.1 L733.1 144.0 L784.8 132.9 L836.6 149.6 L888.4 119.4 L940.2 93.2 L992.0 57.5" class="botline"/>
+    <circle cx="8.0" cy="256.7" r="2.2" class="dot"/><circle cx="59.8" cy="280.5" r="2.2" class="dot"/><circle cx="111.6" cy="262.3" r="2.2" class="dot"/><circle cx="163.4" cy="268.6" r="2.2" class="dot"/><circle cx="215.2" cy="248.8" r="2.2" class="dot"/><circle cx="266.9" cy="228.1" r="2.2" class="dot"/><circle cx="318.7" cy="206.7" r="2.2" class="dot"/><circle cx="370.5" cy="215.4" r="2.2" class="dot"/><circle cx="422.3" cy="231.3" r="2.2" class="dot"/><circle cx="474.1" cy="232.9" r="2.2" class="dot"/><circle cx="525.9" cy="217.0" r="2.2" class="dot"/><circle cx="577.7" cy="200.4" r="2.2" class="dot"/><circle cx="629.5" cy="178.1" r="2.2" class="dot"/><circle cx="681.3" cy="182.1" r="2.2" class="dot"/><circle cx="733.1" cy="144.0" r="2.2" class="dot"/><circle cx="784.8" cy="132.9" r="2.2" class="dot"/><circle cx="836.6" cy="149.6" r="2.2" class="dot"/><circle cx="888.4" cy="119.4" r="2.2" class="dot"/><circle cx="940.2" cy="93.2" r="2.2" class="dot"/><circle cx="992.0" cy="57.5" r="2.2" class="dot"/><text x="8.0" y="332" class="gtxt" text-anchor="middle">05-27</text><text x="163.4" y="332" class="gtxt" text-anchor="middle">05-30</text><text x="318.7" y="332" class="gtxt" text-anchor="middle">06-02</text><text x="474.1" y="332" class="gtxt" text-anchor="middle">06-05</text><text x="629.5" y="332" class="gtxt" text-anchor="middle">06-08</text><text x="784.8" y="332" class="gtxt" text-anchor="middle">06-11</text><text x="940.2" y="332" class="gtxt" text-anchor="middle">06-14</text><text x="992.0" y="332" class="gtxt" text-anchor="middle">06-15</text>
+  </svg>
+  </section>
+
+  <div class="cols">
+    <section class="panel">
+      <div class="phead"><span class="pix">02</span><h2>Open positions</h2></div>
+      <div class="tscroll"><table data-sortable><thead><tr><th>sym</th><th class="num">qty</th><th class="num">avg</th><th class="num">last</th><th class="num">value</th><th class="num">unreal $</th><th class="num">unreal %</th><th class="num">stop</th><th class="num">tp</th><th class="num">conv</th></tr></thead><tbody><tr>
+      <td class="sym">BBRI.JK</td>
+      <td class="num">400.0000</td>
+      <td class="num">Rp 4,080</td>
+      <td class="num">Rp 4,290</td>
+      <td class="num">Rp 1,716,000</td>
+      <td class="num pos">Rp 84,000</td>
+      <td class="num pos">+5.15%</td>
+      <td class="num dim">Rp 3,850</td>
+      <td class="num dim">Rp 4,700</td>
+      <td class="num">74</td>
+    </tr><tr>
+      <td class="sym">GOTO.JK</td>
+      <td class="num">9000.0000</td>
+      <td class="num">Rp 76</td>
+      <td class="num">Rp 82</td>
+      <td class="num">Rp 738,000</td>
+      <td class="num pos">Rp 54,000</td>
+      <td class="num pos">+7.89%</td>
+      <td class="num dim">Rp 70</td>
+      <td class="num dim">Rp 95</td>
+      <td class="num">63</td>
+    </tr><tr>
+      <td class="sym">ANTM.JK</td>
+      <td class="num">800.0000</td>
+      <td class="num">Rp 1,710</td>
+      <td class="num">Rp 1,755</td>
+      <td class="num">Rp 1,404,000</td>
+      <td class="num pos">Rp 36,000</td>
+      <td class="num pos">+2.63%</td>
+      <td class="num dim">Rp 1,600</td>
+      <td class="num dim">Rp 1,950</td>
+      <td class="num">48</td>
+    </tr></tbody></table></div>
+    </section>
+    <section class="panel">
+      <div class="phead"><span class="pix">03</span><h2>Conviction calibration</h2><span class="dim small">hit-rate by conviction bucket</span></div>
+      <div class="calib"><div class="cbar"><div class="ctrack"><div class="cfill down" style="height:40%"></div></div><div class="clab"><0</div><div class="cval">40%</div><div class="cn">5</div></div><div class="cbar"><div class="ctrack"><div class="cfill up" style="height:57%"></div></div><div class="clab">0–25</div><div class="cval">57%</div><div class="cn">7</div></div><div class="cbar"><div class="ctrack"><div class="cfill down" style="height:0%"></div></div><div class="clab">25–40</div><div class="cval">0%</div><div class="cn">3</div></div><div class="cbar"><div class="ctrack"><div class="cfill up" style="height:50%"></div></div><div class="clab">40–60</div><div class="cval">50%</div><div class="cn">2</div></div><div class="cbar"><div class="ctrack"><div class="cfill down" style="height:0%"></div></div><div class="clab">60–80</div><div class="cval">0%</div><div class="cn">1</div></div><div class="cbar"><div class="ctrack"><div class="cfill down" style="height:0%"></div></div><div class="clab">80+</div><div class="cval">·</div><div class="cn"></div></div></div>
+      <div class="ministats">
+        <div><span class="dim">Profit factor</span> <b>3.70</b></div>
+        <div><span class="dim">Expectancy</span> <b class="pos">Rp 43,994/trade</b></div>
+        <div><span class="dim">Wins / Losses</span> <b>5 / 3</b></div>
+      </div>
+    </section>
+  </div>
+
+  <section class="panel">
+    <div class="phead"><span class="pix">04</span><h2>Ledger</h2>
+      <nav class="tabs">
+        <button class="tab active" data-tab="trades">Trades</button>
+        <button class="tab" data-tab="decisions">Decisions</button>
+        <button class="tab" data-tab="research">Research</button>
+        <button class="tab" data-tab="lessons">Lessons</button>
+        <button class="tab" data-tab="reviews">Reviews</button>
+        <button class="tab" data-tab="log">Bot log</button>
+      </nav>
+    </div>
+    <div class="tabpanel active" data-panel="trades"><div class="tscroll"><table data-sortable><thead><tr><th>time</th><th>sym</th><th>event</th><th class="num">qty</th><th class="num">fill</th><th class="num">notional</th><th class="num">p&l $</th><th class="num">p&l %</th><th class="num">R</th><th>reason</th></tr></thead><tbody><tr>
+      <td class="mono dim">06-14 01:25</td>
+      <td class="sym">UNTR.JK</td>
+      <td><span class="tag sell">stop-loss</span></td>
+      <td class="num">300.0000</td>
+      <td class="num">Rp 23,720</td>
+      <td class="num">Rp 7,011,912</td>
+      <td class="num neg">Rp -104,022</td>
+      <td class="num neg">-1.46%</td>
+      <td class="num neg">-0.73R</td>
+      <td class="dim small">rupiah firmer post-BI hold</td>
+    </tr><tr>
+      <td class="mono dim">06-13 01:25</td>
+      <td class="sym">ASII.JK</td>
+      <td><span class="tag buy">open</span></td>
+      <td class="num">200.0000</td>
+      <td class="num">Rp 5,043</td>
+      <td class="num">Rp 1,008,669</td>
+      <td class="num flat"></td>
+      <td class="num flat"></td>
+      <td class="num flat"></td>
+      <td class="dim small">earnings beat + dividend bump</td>
+    </tr><tr>
+      <td class="mono dim">06-12 01:25</td>
+      <td class="sym">TLKM.JK</td>
+      <td><span class="tag sell">stop-loss</span></td>
+      <td class="num">500.0000</td>
+      <td class="num">Rp 3,133</td>
+      <td class="num">Rp 1,540,620</td>
+      <td class="num neg">Rp -26,022</td>
+      <td class="num neg">-1.66%</td>
+      <td class="num neg">-0.83R</td>
+      <td class="dim small">foreign inflows resume, banks lead</td>
+    </tr><tr>
+      <td class="mono dim">06-11 01:25</td>
+      <td class="sym">BMRI.JK</td>
+      <td><span class="tag buy">open</span></td>
+      <td class="num">600.0000</td>
+      <td class="num">Rp 6,224</td>
+      <td class="num">Rp 3,734,287</td>
+      <td class="num flat"></td>
+      <td class="num flat"></td>
+      <td class="num flat"></td>
+      <td class="dim small">Iran–US peace → lower oil, net-importer tailwind</td>
+    </tr><tr>
+      <td class="mono dim">06-10 01:25</td>
+      <td class="sym">BBRI.JK</td>
+      <td><span class="tag sell">take-profit</span></td>
+      <td class="num">100.0000</td>
+      <td class="num">Rp 4,183</td>
+      <td class="num">Rp 425,609</td>
+      <td class="num pos">Rp 7,276</td>
+      <td class="num pos">+1.74%</td>
+      <td class="num pos">0.87R</td>
+      <td class="dim small">coal lags as oil falls</td>
+    </tr><tr>
+      <td class="mono dim">06-09 01:25</td>
+      <td class="sym">BBCA.JK</td>
+      <td><span class="tag buy">open</span></td>
+      <td class="num">400.0000</td>
+      <td class="num">Rp 5,727</td>
+      <td class="num">Rp 2,290,687</td>
+      <td class="num flat"></td>
+      <td class="num flat"></td>
+      <td class="num flat"></td>
+      <td class="dim small">broke 20d on profit-taking</td>
+    </tr><tr>
+      <td class="mono dim">06-08 01:25</td>
+      <td class="sym">GOTO.JK</td>
+      <td><span class="tag sell">stop-loss</span></td>
+      <td class="num">200.0000</td>
+      <td class="num">Rp 79</td>
+      <td class="num">Rp 15,590</td>
+      <td class="num neg">Rp -280</td>
+      <td class="num neg">-1.76%</td>
+      <td class="num neg">-0.88R</td>
+      <td class="dim small">rupiah firmer post-BI hold</td>
+    </tr><tr>
+      <td class="mono dim">06-07 01:25</td>
+      <td class="sym">ANTM.JK</td>
+      <td><span class="tag buy">open</span></td>
+      <td class="num">400.0000</td>
+      <td class="num">Rp 1,750</td>
+      <td class="num">Rp 699,954</td>
+      <td class="num flat"></td>
+      <td class="num flat"></td>
+      <td class="num flat"></td>
+      <td class="dim small">earnings beat + dividend bump</td>
+    </tr><tr>
+      <td class="mono dim">06-06 01:25</td>
+      <td class="sym">AMRT.JK</td>
+      <td><span class="tag sell">take-profit</span></td>
+      <td class="num">400.0000</td>
+      <td class="num">Rp 2,834</td>
+      <td class="num">Rp 1,160,178</td>
+      <td class="num pos">Rp 26,425</td>
+      <td class="num pos">+2.33%</td>
+      <td class="num pos">1.17R</td>
+      <td class="dim small">foreign inflows resume, banks lead</td>
+    </tr><tr>
+      <td class="mono dim">06-05 01:25</td>
+      <td class="sym">ICBP.JK</td>
+      <td><span class="tag buy">open</span></td>
+      <td class="num">100.0000</td>
+      <td class="num">Rp 11,203</td>
+      <td class="num">Rp 1,120,255</td>
+      <td class="num flat"></td>
+      <td class="num flat"></td>
+      <td class="num flat"></td>
+      <td class="dim small">Iran–US peace → lower oil, net-importer tailwind</td>
+    </tr><tr>
+      <td class="mono dim">06-04 01:25</td>
+      <td class="sym">UNTR.JK</td>
+      <td><span class="tag sell">take-profit</span></td>
+      <td class="num">600.0000</td>
+      <td class="num">Rp 25,240</td>
+      <td class="num">Rp 15,539,835</td>
+      <td class="num pos">Rp 395,636</td>
+      <td class="num pos">+2.61%</td>
+      <td class="num pos">1.31R</td>
+      <td class="dim small">coal lags as oil falls</td>
+    </tr><tr>
+      <td class="mono dim">06-03 01:25</td>
+      <td class="sym">ASII.JK</td>
+      <td><span class="tag buy">open</span></td>
+      <td class="num">500.0000</td>
+      <td class="num">Rp 4,854</td>
+      <td class="num">Rp 2,426,882</td>
+      <td class="num flat"></td>
+      <td class="num flat"></td>
+      <td class="num flat"></td>
+      <td class="dim small">broke 20d on profit-taking</td>
+    </tr><tr>
+      <td class="mono dim">06-02 01:25</td>
+      <td class="sym">TLKM.JK</td>
+      <td><span class="tag sell">take-profit</span></td>
+      <td class="num">200.0000</td>
+      <td class="num">Rp 3,306</td>
+      <td class="num">Rp 679,781</td>
+      <td class="num pos">Rp 18,521</td>
+      <td class="num pos">+2.80%</td>
+      <td class="num pos">1.40R</td>
+      <td class="dim small">rupiah firmer post-BI hold</td>
+    </tr><tr>
+      <td class="mono dim">06-01 01:25</td>
+      <td class="sym">BMRI.JK</td>
+      <td><span class="tag buy">open</span></td>
+      <td class="num">300.0000</td>
+      <td class="num">Rp 6,303</td>
+      <td class="num">Rp 1,890,928</td>
+      <td class="num flat"></td>
+      <td class="num flat"></td>
+      <td class="num flat"></td>
+      <td class="dim small">earnings beat + dividend bump</td>
+    </tr><tr>
+      <td class="mono dim">05-31 01:25</td>
+      <td class="sym">BBRI.JK</td>
+      <td><span class="tag sell">take-profit</span></td>
+      <td class="num">400.0000</td>
+      <td class="num">Rp 4,353</td>
+      <td class="num">Rp 1,775,526</td>
+      <td class="num pos">Rp 34,417</td>
+      <td class="num pos">+1.98%</td>
+      <td class="num pos">0.99R</td>
+      <td class="dim small">foreign inflows resume, banks lead</td>
+    </tr><tr>
+      <td class="mono dim">05-30 01:25</td>
+      <td class="sym">BBCA.JK</td>
+      <td><span class="tag buy">open</span></td>
+      <td class="num">100.0000</td>
+      <td class="num">Rp 5,930</td>
+      <td class="num">Rp 593,042</td>
+      <td class="num flat"></td>
+      <td class="num flat"></td>
+      <td class="num flat"></td>
+      <td class="dim small">Iran–US peace → lower oil, net-importer tailwind</td>
+    </tr></tbody></table></div></div>
+    <div class="tabpanel" data-panel="decisions"><div class="tscroll"><table data-sortable><thead><tr><th>date</th><th>phase</th><th>sym</th><th>event</th><th class="num">tech</th><th class="num">res</th><th class="num">conv</th><th>reason</th><th>invalidation</th><th>outcome</th></tr></thead><tbody><tr>
+      <td class="mono dim">2026-06-08</td>
+      <td class="dim small">open</td>
+      <td class="sym">TLKM.JK</td>
+      <td><span class="tag flat">hold</span></td>
+      <td class="num">7</td>
+      <td class="num">1</td>
+      <td class="num strong pos">3</td>
+      <td class="dim small wide">coal lags as oil falls</td>
+      <td class="dim small">close below 20d MA</td>
+      <td></td>
+    </tr><tr>
+      <td class="mono dim">2026-06-08</td>
+      <td class="dim small">midday</td>
+      <td class="sym">BMRI.JK</td>
+      <td><span class="tag flat">hold</span></td>
+      <td class="num">59</td>
+      <td class="num">18</td>
+      <td class="num strong pos">34</td>
+      <td class="dim small wide">broke 20d on profit-taking</td>
+      <td class="dim small">close below 20d MA</td>
+      <td></td>
+    </tr><tr>
+      <td class="mono dim">2026-06-08</td>
+      <td class="dim small">premarket</td>
+      <td class="sym">BBRI.JK</td>
+      <td><span class="tag flat">hold</span></td>
+      <td class="num">47</td>
+      <td class="num">-32</td>
+      <td class="num strong flat">0</td>
+      <td class="dim small wide">rupiah firmer post-BI hold</td>
+      <td class="dim small">close below 20d MA</td>
+      <td></td>
+    </tr><tr>
+      <td class="mono dim">2026-06-09</td>
+      <td class="dim small">open</td>
+      <td class="sym">BBCA.JK</td>
+      <td><span class="tag flat">hold</span></td>
+      <td class="num">-36</td>
+      <td class="num">72</td>
+      <td class="num strong pos">29</td>
+      <td class="dim small wide">earnings beat + dividend bump</td>
+      <td class="dim small">close below 20d MA</td>
+      <td></td>
+    </tr><tr>
+      <td class="mono dim">2026-06-09</td>
+      <td class="dim small">midday</td>
+      <td class="sym">GOTO.JK</td>
+      <td><span class="tag flat">hold</span></td>
+      <td class="num">-8</td>
+      <td class="num">-37</td>
+      <td class="num strong neg">-25</td>
+      <td class="dim small wide">foreign inflows resume, banks lead</td>
+      <td class="dim small">close below 20d MA</td>
+      <td></td>
+    </tr><tr>
+      <td class="mono dim">2026-06-09</td>
+      <td class="dim small">premarket</td>
+      <td class="sym">ANTM.JK</td>
+      <td><span class="tag buy">open</span></td>
+      <td class="num">41</td>
+      <td class="num">49</td>
+      <td class="num strong pos">46</td>
+      <td class="dim small wide">Iran–US peace → lower oil, net-importer tailwind</td>
+      <td class="dim small">close below 20d MA</td>
+      <td></td>
+    </tr><tr>
+      <td class="mono dim">2026-06-10</td>
+      <td class="dim small">open</td>
+      <td class="sym">AMRT.JK</td>
+      <td><span class="tag flat">hold</span></td>
+      <td class="num">69</td>
+      <td class="num">-12</td>
+      <td class="num strong pos">20</td>
+      <td class="dim small wide">coal lags as oil falls</td>
+      <td class="dim small">close below 20d MA</td>
+      <td><span class="tag o-HIT">HIT</span></td>
+    </tr><tr>
+      <td class="mono dim">2026-06-10</td>
+      <td class="dim small">midday</td>
+      <td class="sym">ICBP.JK</td>
+      <td><span class="tag flat">hold</span></td>
+      <td class="num">19</td>
+      <td class="num">-4</td>
+      <td class="num strong pos">5</td>
+      <td class="dim small wide">broke 20d on profit-taking</td>
+      <td class="dim small">close below 20d MA</td>
+      <td><span class="tag o-HIT">HIT</span></td>
+    </tr><tr>
+      <td class="mono dim">2026-06-10</td>
+      <td class="dim small">premarket</td>
+      <td class="sym">UNTR.JK</td>
+      <td><span class="tag flat">hold</span></td>
+      <td class="num">49</td>
+      <td class="num">8</td>
+      <td class="num strong pos">24</td>
+      <td class="dim small wide">rupiah firmer post-BI hold</td>
+      <td class="dim small">close below 20d MA</td>
+      <td><span class="tag o-MISS">MISS</span></td>
+    </tr><tr>
+      <td class="mono dim">2026-06-11</td>
+      <td class="dim small">open</td>
+      <td class="sym">ASII.JK</td>
+      <td><span class="tag flat">hold</span></td>
+      <td class="num">-27</td>
+      <td class="num">48</td>
+      <td class="num strong pos">18</td>
+      <td class="dim small wide">earnings beat + dividend bump</td>
+      <td class="dim small">close below 20d MA</td>
+      <td><span class="tag o-HIT">HIT</span></td>
+    </tr><tr>
+      <td class="mono dim">2026-06-11</td>
+      <td class="dim small">midday</td>
+      <td class="sym">TLKM.JK</td>
+      <td><span class="tag flat">hold</span></td>
+      <td class="num">13</td>
+      <td class="num">29</td>
+      <td class="num strong pos">23</td>
+      <td class="dim small wide">foreign inflows resume, banks lead</td>
+      <td class="dim small">close below 20d MA</td>
+      <td><span class="tag o-MISS">MISS</span></td>
+    </tr><tr>
+      <td class="mono dim">2026-06-11</td>
+      <td class="dim small">premarket</td>
+      <td class="sym">BMRI.JK</td>
+      <td><span class="tag buy">open</span></td>
+      <td class="num">15</td>
+      <td class="num">75</td>
+      <td class="num strong pos">51</td>
+      <td class="dim small wide">Iran–US peace → lower oil, net-importer tailwind</td>
+      <td class="dim small">close below 20d MA</td>
+      <td><span class="tag o-HIT">HIT</span></td>
+    </tr><tr>
+      <td class="mono dim">2026-06-12</td>
+      <td class="dim small">open</td>
+      <td class="sym">BBRI.JK</td>
+      <td><span class="tag flat">hold</span></td>
+      <td class="num">-38</td>
+      <td class="num">58</td>
+      <td class="num strong pos">20</td>
+      <td class="dim small wide">coal lags as oil falls</td>
+      <td class="dim small">close below 20d MA</td>
+      <td><span class="tag o-HIT">HIT</span></td>
+    </tr><tr>
+      <td class="mono dim">2026-06-12</td>
+      <td class="dim small">midday</td>
+      <td class="sym">BBCA.JK</td>
+      <td><span class="tag buy">open</span></td>
+      <td class="num">67</td>
+      <td class="num">76</td>
+      <td class="num strong pos">72</td>
+      <td class="dim small wide">broke 20d on profit-taking</td>
+      <td class="dim small">close below 20d MA</td>
+      <td><span class="tag o-MISS">MISS</span></td>
+    </tr><tr>
+      <td class="mono dim">2026-06-12</td>
+      <td class="dim small">premarket</td>
+      <td class="sym">GOTO.JK</td>
+      <td><span class="tag flat">hold</span></td>
+      <td class="num">20</td>
+      <td class="num">-45</td>
+      <td class="num strong neg">-19</td>
+      <td class="dim small wide">rupiah firmer post-BI hold</td>
+      <td class="dim small">close below 20d MA</td>
+      <td><span class="tag o-MISS">MISS</span></td>
+    </tr><tr>
+      <td class="mono dim">2026-06-13</td>
+      <td class="dim small">open</td>
+      <td class="sym">ANTM.JK</td>
+      <td><span class="tag flat">hold</span></td>
+      <td class="num">-27</td>
+      <td class="num">-8</td>
+      <td class="num strong neg">-16</td>
+      <td class="dim small wide">earnings beat + dividend bump</td>
+      <td class="dim small">close below 20d MA</td>
+      <td><span class="tag o-UNCLEAR">UNCLEAR</span></td>
+    </tr><tr>
+      <td class="mono dim">2026-06-13</td>
+      <td class="dim small">midday</td>
+      <td class="sym">AMRT.JK</td>
+      <td><span class="tag flat">hold</span></td>
+      <td class="num">43</td>
+      <td class="num">-44</td>
+      <td class="num strong neg">-9</td>
+      <td class="dim small wide">foreign inflows resume, banks lead</td>
+      <td class="dim small">close below 20d MA</td>
+      <td><span class="tag o-HIT">HIT</span></td>
+    </tr><tr>
+      <td class="mono dim">2026-06-13</td>
+      <td class="dim small">premarket</td>
+      <td class="sym">ICBP.JK</td>
+      <td><span class="tag flat">hold</span></td>
+      <td class="num">10</td>
+      <td class="num">16</td>
+      <td class="num strong pos">14</td>
+      <td class="dim small wide">Iran–US peace → lower oil, net-importer tailwind</td>
+      <td class="dim small">close below 20d MA</td>
+      <td><span class="tag o-UNCLEAR">UNCLEAR</span></td>
+    </tr><tr>
+      <td class="mono dim">2026-06-14</td>
+      <td class="dim small">open</td>
+      <td class="sym">UNTR.JK</td>
+      <td><span class="tag flat">hold</span></td>
+      <td class="num">-36</td>
+      <td class="num">84</td>
+      <td class="num strong pos">36</td>
+      <td class="dim small wide">coal lags as oil falls</td>
+      <td class="dim small">close below 20d MA</td>
+      <td><span class="tag o-MISS">MISS</span></td>
+    </tr><tr>
+      <td class="mono dim">2026-06-14</td>
+      <td class="dim small">midday</td>
+      <td class="sym">ASII.JK</td>
+      <td><span class="tag flat">hold</span></td>
+      <td class="num">7</td>
+      <td class="num">-17</td>
+      <td class="num strong neg">-7</td>
+      <td class="dim small wide">broke 20d on profit-taking</td>
+      <td class="dim small">close below 20d MA</td>
+      <td><span class="tag o-HIT">HIT</span></td>
+    </tr><tr>
+      <td class="mono dim">2026-06-14</td>
+      <td class="dim small">premarket</td>
+      <td class="sym">TLKM.JK</td>
+      <td><span class="tag flat">hold</span></td>
+      <td class="num">2</td>
+      <td class="num">64</td>
+      <td class="num strong pos">39</td>
+      <td class="dim small wide">rupiah firmer post-BI hold</td>
+      <td class="dim small">close below 20d MA</td>
+      <td><span class="tag o-MISS">MISS</span></td>
+    </tr><tr>
+      <td class="mono dim">2026-06-15</td>
+      <td class="dim small">open</td>
+      <td class="sym">BMRI.JK</td>
+      <td><span class="tag flat">hold</span></td>
+      <td class="num">-20</td>
+      <td class="num">77</td>
+      <td class="num strong pos">38</td>
+      <td class="dim small wide">earnings beat + dividend bump</td>
+      <td class="dim small">close below 20d MA</td>
+      <td><span class="tag o-MISS">MISS</span></td>
+    </tr><tr>
+      <td class="mono dim">2026-06-15</td>
+      <td class="dim small">midday</td>
+      <td class="sym">BBRI.JK</td>
+      <td><span class="tag flat">hold</span></td>
+      <td class="num">-4</td>
+      <td class="num">-34</td>
+      <td class="num strong neg">-22</td>
+      <td class="dim small wide">foreign inflows resume, banks lead</td>
+      <td class="dim small">close below 20d MA</td>
+      <td><span class="tag o-MISS">MISS</span></td>
+    </tr><tr>
+      <td class="mono dim">2026-06-15</td>
+      <td class="dim small">premarket</td>
+      <td class="sym">BBCA.JK</td>
+      <td><span class="tag buy">open</span></td>
+      <td class="num">51</td>
+      <td class="num">47</td>
+      <td class="num strong pos">49</td>
+      <td class="dim small wide">Iran–US peace → lower oil, net-importer tailwind</td>
+      <td class="dim small">close below 20d MA</td>
+      <td><span class="tag o-MISS">MISS</span></td>
+    </tr></tbody></table></div></div>
+    <div class="tabpanel" data-panel="research"><div class="tscroll"><table data-sortable><thead><tr><th>date</th><th>sym</th><th>sector</th><th class="num">price</th><th class="num">gap</th><th class="num">rsi</th><th class="num">tech</th><th class="num">res</th><th>catalyst</th></tr></thead><tbody><tr>
+      <td class="mono dim">2026-06-08</td>
+      <td class="sym">TLKM.JK</td>
+      <td class="dim small">idx</td>
+      <td class="num">Rp 3,200</td>
+      <td class="num pos">+1.24%</td>
+      <td class="num">38</td>
+      <td class="num pos">7</td>
+      <td class="num pos">1</td>
+      <td class="dim small wide">coal lags as oil falls</td>
+    </tr><tr>
+      <td class="mono dim">2026-06-08</td>
+      <td class="sym">BMRI.JK</td>
+      <td class="dim small">idx</td>
+      <td class="num">Rp 6,100</td>
+      <td class="num pos">+2.49%</td>
+      <td class="num">45</td>
+      <td class="num pos">59</td>
+      <td class="num pos">18</td>
+      <td class="dim small wide">broke 20d on profit-taking</td>
+    </tr><tr>
+      <td class="mono dim">2026-06-08</td>
+      <td class="sym">BBRI.JK</td>
+      <td class="dim small">idx</td>
+      <td class="num">Rp 4,200</td>
+      <td class="num pos">+0.58%</td>
+      <td class="num">40</td>
+      <td class="num pos">47</td>
+      <td class="num neg">-32</td>
+      <td class="dim small wide">rupiah firmer post-BI hold</td>
+    </tr><tr>
+      <td class="mono dim">2026-06-09</td>
+      <td class="sym">BBCA.JK</td>
+      <td class="dim small">idx</td>
+      <td class="num">Rp 5,900</td>
+      <td class="num neg">-0.13%</td>
+      <td class="num">72</td>
+      <td class="num neg">-36</td>
+      <td class="num pos">72</td>
+      <td class="dim small wide">earnings beat + dividend bump</td>
+    </tr><tr>
+      <td class="mono dim">2026-06-09</td>
+      <td class="sym">GOTO.JK</td>
+      <td class="dim small">idx</td>
+      <td class="num">Rp 78</td>
+      <td class="num neg">-1.04%</td>
+      <td class="num">43</td>
+      <td class="num neg">-8</td>
+      <td class="num neg">-37</td>
+      <td class="dim small wide">foreign inflows resume, banks lead</td>
+    </tr><tr>
+      <td class="mono dim">2026-06-09</td>
+      <td class="sym">ANTM.JK</td>
+      <td class="dim small">idx</td>
+      <td class="num">Rp 1,750</td>
+      <td class="num neg">-0.48%</td>
+      <td class="num">55</td>
+      <td class="num pos">41</td>
+      <td class="num pos">49</td>
+      <td class="dim small wide">Iran–US peace → lower oil, net-importer tailwind</td>
+    </tr><tr>
+      <td class="mono dim">2026-06-10</td>
+      <td class="sym">AMRT.JK</td>
+      <td class="dim small">idx</td>
+      <td class="num">Rp 2,900</td>
+      <td class="num pos">+1.81%</td>
+      <td class="num">77</td>
+      <td class="num pos">69</td>
+      <td class="num neg">-12</td>
+      <td class="dim small wide">coal lags as oil falls</td>
+    </tr><tr>
+      <td class="mono dim">2026-06-10</td>
+      <td class="sym">ICBP.JK</td>
+      <td class="dim small">idx</td>
+      <td class="num">Rp 11,200</td>
+      <td class="num pos">+0.91%</td>
+      <td class="num">74</td>
+      <td class="num pos">19</td>
+      <td class="num neg">-4</td>
+      <td class="dim small wide">broke 20d on profit-taking</td>
+    </tr><tr>
+      <td class="mono dim">2026-06-10</td>
+      <td class="sym">UNTR.JK</td>
+      <td class="dim small">idx</td>
+      <td class="num">Rp 24,500</td>
+      <td class="num pos">+0.35%</td>
+      <td class="num">72</td>
+      <td class="num pos">49</td>
+      <td class="num pos">8</td>
+      <td class="dim small wide">rupiah firmer post-BI hold</td>
+    </tr><tr>
+      <td class="mono dim">2026-06-11</td>
+      <td class="sym">ASII.JK</td>
+      <td class="dim small">idx</td>
+      <td class="num">Rp 5,050</td>
+      <td class="num pos">+1.24%</td>
+      <td class="num">52</td>
+      <td class="num neg">-27</td>
+      <td class="num pos">48</td>
+      <td class="dim small wide">earnings beat + dividend bump</td>
+    </tr><tr>
+      <td class="mono dim">2026-06-11</td>
+      <td class="sym">TLKM.JK</td>
+      <td class="dim small">idx</td>
+      <td class="num">Rp 3,200</td>
+      <td class="num pos">+2.81%</td>
+      <td class="num">62</td>
+      <td class="num pos">13</td>
+      <td class="num pos">29</td>
+      <td class="dim small wide">foreign inflows resume, banks lead</td>
+    </tr><tr>
+      <td class="mono dim">2026-06-11</td>
+      <td class="sym">BMRI.JK</td>
+      <td class="dim small">idx</td>
+      <td class="num">Rp 6,100</td>
+      <td class="num neg">-1.23%</td>
+      <td class="num">51</td>
+      <td class="num pos">15</td>
+      <td class="num pos">75</td>
+      <td class="dim small wide">Iran–US peace → lower oil, net-importer tailwind</td>
+    </tr><tr>
+      <td class="mono dim">2026-06-12</td>
+      <td class="sym">BBRI.JK</td>
+      <td class="dim small">idx</td>
+      <td class="num">Rp 4,200</td>
+      <td class="num pos">+0.30%</td>
+      <td class="num">64</td>
+      <td class="num neg">-38</td>
+      <td class="num pos">58</td>
+      <td class="dim small wide">coal lags as oil falls</td>
+    </tr><tr>
+      <td class="mono dim">2026-06-12</td>
+      <td class="sym">BBCA.JK</td>
+      <td class="dim small">idx</td>
+      <td class="num">Rp 5,900</td>
+      <td class="num pos">+1.55%</td>
+      <td class="num">59</td>
+      <td class="num pos">67</td>
+      <td class="num pos">76</td>
+      <td class="dim small wide">broke 20d on profit-taking</td>
+    </tr><tr>
+      <td class="mono dim">2026-06-12</td>
+      <td class="sym">GOTO.JK</td>
+      <td class="dim small">idx</td>
+      <td class="num">Rp 78</td>
+      <td class="num neg">-0.09%</td>
+      <td class="num">51</td>
+      <td class="num pos">20</td>
+      <td class="num neg">-45</td>
+      <td class="dim small wide">rupiah firmer post-BI hold</td>
+    </tr><tr>
+      <td class="mono dim">2026-06-13</td>
+      <td class="sym">ANTM.JK</td>
+      <td class="dim small">idx</td>
+      <td class="num">Rp 1,750</td>
+      <td class="num neg">-0.13%</td>
+      <td class="num">61</td>
+      <td class="num neg">-27</td>
+      <td class="num neg">-8</td>
+      <td class="dim small wide">earnings beat + dividend bump</td>
+    </tr><tr>
+      <td class="mono dim">2026-06-13</td>
+      <td class="sym">AMRT.JK</td>
+      <td class="dim small">idx</td>
+      <td class="num">Rp 2,900</td>
+      <td class="num pos">+0.31%</td>
+      <td class="num">41</td>
+      <td class="num pos">43</td>
+      <td class="num neg">-44</td>
+      <td class="dim small wide">foreign inflows resume, banks lead</td>
+    </tr><tr>
+      <td class="mono dim">2026-06-13</td>
+      <td class="sym">ICBP.JK</td>
+      <td class="dim small">idx</td>
+      <td class="num">Rp 11,200</td>
+      <td class="num pos">+0.97%</td>
+      <td class="num">68</td>
+      <td class="num pos">10</td>
+      <td class="num pos">16</td>
+      <td class="dim small wide">Iran–US peace → lower oil, net-importer tailwind</td>
+    </tr><tr>
+      <td class="mono dim">2026-06-14</td>
+      <td class="sym">UNTR.JK</td>
+      <td class="dim small">idx</td>
+      <td class="num">Rp 24,500</td>
+      <td class="num neg">-0.47%</td>
+      <td class="num">54</td>
+      <td class="num neg">-36</td>
+      <td class="num pos">84</td>
+      <td class="dim small wide">coal lags as oil falls</td>
+    </tr><tr>
+      <td class="mono dim">2026-06-14</td>
+      <td class="sym">ASII.JK</td>
+      <td class="dim small">idx</td>
+      <td class="num">Rp 5,050</td>
+      <td class="num pos">+0.77%</td>
+      <td class="num">41</td>
+      <td class="num pos">7</td>
+      <td class="num neg">-17</td>
+      <td class="dim small wide">broke 20d on profit-taking</td>
+    </tr><tr>
+      <td class="mono dim">2026-06-14</td>
+      <td class="sym">TLKM.JK</td>
+      <td class="dim small">idx</td>
+      <td class="num">Rp 3,200</td>
+      <td class="num pos">+1.68%</td>
+      <td class="num">61</td>
+      <td class="num pos">2</td>
+      <td class="num pos">64</td>
+      <td class="dim small wide">rupiah firmer post-BI hold</td>
+    </tr><tr>
+      <td class="mono dim">2026-06-15</td>
+      <td class="sym">BMRI.JK</td>
+      <td class="dim small">idx</td>
+      <td class="num">Rp 6,100</td>
+      <td class="num pos">+0.13%</td>
+      <td class="num">40</td>
+      <td class="num neg">-20</td>
+      <td class="num pos">77</td>
+      <td class="dim small wide">earnings beat + dividend bump</td>
+    </tr><tr>
+      <td class="mono dim">2026-06-15</td>
+      <td class="sym">BBRI.JK</td>
+      <td class="dim small">idx</td>
+      <td class="num">Rp 4,200</td>
+      <td class="num pos">+0.44%</td>
+      <td class="num">59</td>
+      <td class="num neg">-4</td>
+      <td class="num neg">-34</td>
+      <td class="dim small wide">foreign inflows resume, banks lead</td>
+    </tr><tr>
+      <td class="mono dim">2026-06-15</td>
+      <td class="sym">BBCA.JK</td>
+      <td class="dim small">idx</td>
+      <td class="num">Rp 5,900</td>
+      <td class="num pos">+1.37%</td>
+      <td class="num">45</td>
+      <td class="num pos">51</td>
+      <td class="num pos">47</td>
+      <td class="dim small wide">Iran–US peace → lower oil, net-importer tailwind</td>
+    </tr></tbody></table></div></div>
+    <div class="tabpanel" data-panel="lessons"><ul class="llist"><li><span class="tag o-UNCLEAR">continue</span> <b>sizing</b> — Round-lot conviction sizing on BBCA improved expectancy. Keep. <span class="dim small">(2026-06-10)</span></li><li><span class="tag o-MISS">stop</span> <b>risk</b> — IDX gaps hard on foreign-flow days — 1.5·ATR was too tight on ADRO. Widen stops on flow-driven names. <span class="dim small">(2026-06-12)</span></li><li><span class="tag o-HIT">do</span> <b>sector</b> — Peace / oil-down regime: banks + consumer lead, coal lags. Tilt the book to net-importer beneficiaries. <span class="dim small">(2026-06-14)</span></li></ul></div>
+    <div class="tabpanel" data-panel="reviews"><div class="rcols"><div><h3>Daily</h3><ul class="rlist"><li><span class="rd">2026-06-15</span> <span class="dim small">reviews/daily/2026-06-15.md</span></li><li><span class="rd">2026-06-14</span> <span class="dim small">reviews/daily/2026-06-14.md</span></li></ul></div><div><h3>Weekly</h3><ul class="rlist"><li><span class="rd">2026-W24</span> <span class="dim small">reviews/weekly/2026-W24.md</span></li></ul></div></div></div>
+    <div class="tabpanel" data-panel="log"><pre class="log">2026-06-10T09:05 open: filled 2 buys (BBRI, GOTO), cash=Rp 2871582
+2026-06-11T09:05 open: filled 2 buys (BBRI, GOTO), cash=Rp 2825920
+2026-06-12T09:05 open: filled 2 buys (BBRI, GOTO), cash=Rp 2745080
+2026-06-13T09:05 open: filled 2 buys (BBRI, GOTO), cash=Rp 2820541
+2026-06-14T09:05 open: filled 2 buys (BBRI, GOTO), cash=Rp 2798714
+2026-06-15T09:05 open: filled 2 buys (BBRI, GOTO), cash=Rp 2782112</pre></div>
+  </section>
+
+  <footer class="foot">
+    <div><span class="dim">Mission</span> beat JCI (IDX Composite) · long-only · Rp 10,000,000 paper</div>
+    <div><span class="dim">Blend</span> tech 0.4 · research 0.6 <span class="dim">· thresholds</span> buy 40 · add 25 · trim -15 · close -30</div>
+    <div class="watch"><span class="chip">BBCA.JK</span><span class="chip">BBRI.JK</span><span class="chip">BMRI.JK</span><span class="chip">BBNI.JK</span><span class="chip">TLKM.JK</span><span class="chip">ASII.JK</span><span class="chip">UNTR.JK</span><span class="chip">ICBP.JK</span><span class="chip">INDF.JK</span><span class="chip">UNVR.JK</span><span class="chip">AMRT.JK</span><span class="chip">KLBF.JK</span><span class="chip">SMGR.JK</span><span class="chip">ADRO.JK</span><span class="chip">PGAS.JK</span><span class="chip">ANTM.JK</span><span class="chip">MDKA.JK</span><span class="chip">GOTO.JK</span></div>
+  </footer>
+</main>
+<script>const DATA={"equity":[{"date":"2026-05-27","equity":9986786.46,"cash":2800000,"bench_level":6015.73,"bot_ret_since_incept":-0.13,"bench_ret_since_incept":0.26,"alpha":-0.39},{"date":"2026-05-28","equity":9956941.89,"cash":2800000,"bench_level":6029.21,"bot_ret_since_incept":-0.43,"bench_ret_since_incept":0.49,"alpha":-0.92},{"date":"2026-05-29","equity":9980173.19,"cash":2800000,"bench_level":6041.22,"bot_ret_since_incept":-0.2,"bench_ret_since_incept":0.69,"alpha":-0.89},{"date":"2026-05-30","equity":9972368.15,"cash":2800000,"bench_level":6038.75,"bot_ret_since_incept":-0.28,"bench_ret_since_incept":0.65,"alpha":-0.92},{"date":"2026-05-31","equity":9996851.89,"cash":2800000,"bench_level":6031.95,"bot_ret_since_incept":-0.03,"bench_ret_since_incept":0.53,"alpha":-0.56},{"date":"2026-06-01","equity":10022939.68,"cash":2800000,"bench_level":6050.87,"bot_ret_since_incept":0.23,"bench_ret_since_incept":0.85,"alpha":-0.62},{"date":"2026-06-02","equity":10050381.31,"cash":2800000,"bench_level":6044.73,"bot_ret_since_incept":0.5,"bench_ret_since_incept":0.75,"alpha":-0.24},{"date":"2026-06-03","equity":10038582.12,"cash":2800000,"bench_level":6030.02,"bot_ret_since_incept":0.39,"bench_ret_since_incept":0.5,"alpha":-0.11},{"date":"2026-06-04","equity":10019107.37,"cash":2800000,"bench_level":6010.43,"bot_ret_since_incept":0.19,"bench_ret_since_incept":0.17,"alpha":0.02},{"date":"2026-06-05","equity":10017420.93,"cash":2800000,"bench_level":5991.3,"bot_ret_since_incept":0.17,"bench_ret_since_incept":-0.14,"alpha":0.32},{"date":"2026-06-06","equity":10036698.86,"cash":2800000,"bench_level":6011.01,"bot_ret_since_incept":0.37,"bench_ret_since_incept":0.18,"alpha":0.18},{"date":"2026-06-07","equity":10057719.09,"cash":2800000,"bench_level":6003.03,"bot_ret_since_incept":0.58,"bench_ret_since_incept":0.05,"alpha":0.53},{"date":"2026-06-08","equity":10086351.63,"cash":2800000,"bench_level":5991.26,"bot_ret_since_incept":0.86,"bench_ret_since_incept":-0.15,"alpha":1.01},{"date":"2026-06-09","equity":10080597.31,"cash":2800000,"bench_level":5999.99,"bot_ret_since_incept":0.81,"bench_ret_since_incept":0,"alpha":0.81},{"date":"2026-06-10","equity":10129116.29,"cash":2800000,"bench_level":6003.8,"bot_ret_since_incept":1.29,"bench_ret_since_incept":0.06,"alpha":1.23},{"date":"2026-06-11","equity":10143371.68,"cash":2800000,"bench_level":6008.05,"bot_ret_since_incept":1.43,"bench_ret_since_incept":0.13,"alpha":1.3},{"date":"2026-06-12","equity":10122348.07,"cash":2800000,"bench_level":5994.54,"bot_ret_since_incept":1.22,"bench_ret_since_incept":-0.09,"alpha":1.31},{"date":"2026-06-13","equity":10160352.38,"cash":2800000,"bench_level":6011.34,"bot_ret_since_incept":1.6,"bench_ret_since_incept":0.19,"alpha":1.41},{"date":"2026-06-14","equity":10192949.89,"cash":2800000,"bench_level":6029.14,"bot_ret_since_incept":1.93,"bench_ret_since_incept":0.49,"alpha":1.44},{"date":"2026-06-15","equity":10238251.34,"cash":2800000,"bench_level":6045.51,"bot_ret_since_incept":2.38,"bench_ret_since_incept":0.76,"alpha":1.62}]};
+document.querySelectorAll('.tab').forEach(function(b){
+  b.addEventListener('click',function(){
+    var t=b.getAttribute('data-tab');
+    document.querySelectorAll('.tab').forEach(function(x){x.classList.toggle('active',x===b)});
+    document.querySelectorAll('.tabpanel').forEach(function(p){p.classList.toggle('active',p.getAttribute('data-panel')===t)});
+  });
+});
+document.querySelectorAll('table[data-sortable] th').forEach(function(th,idx){
+  th.addEventListener('click',function(){
+    var tb=th.closest('table'),body=tb.tBodies[0],rows=[].slice.call(body.rows);
+    var asc=th._asc=!th._asc;
+    rows.sort(function(a,b){
+      var x=a.cells[idx].innerText.replace(/[$,%RA-Za-z ]/g,'').trim();
+      var y=b.cells[idx].innerText.replace(/[$,%RA-Za-z ]/g,'').trim();
+      var nx=parseFloat(x),ny=parseFloat(y);
+      if(!isNaN(nx)&&!isNaN(ny))return asc?nx-ny:ny-nx;
+      return asc?a.cells[idx].innerText.localeCompare(b.cells[idx].innerText):b.cells[idx].innerText.localeCompare(a.cells[idx].innerText);
+    });
+    rows.forEach(function(r){body.appendChild(r)});
+  });
+});
+</script>
+</body></html>

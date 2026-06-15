@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "goal": "Beat the S&P 500 (total return) on a long-only US paper account.",
+  "benchmark": { "symbol": "^GSPC", "proxy": "SPY", "label": "S&P 500" },
+  "currency": "USD",
+  "starting_capital": 1000,
+  "fractional_shares": true,
+
+  "watchlist": [
+    { "symbol": "AAPL",  "sector": "tech" },
+    { "symbol": "MSFT",  "sector": "tech" },
+    { "symbol": "NVDA",  "sector": "semis" },
+    { "symbol": "AVGO",  "sector": "semis" },
+    { "symbol": "AMZN",  "sector": "consumer-disc" },
+    { "symbol": "GOOGL", "sector": "comm-services" },
+    { "symbol": "META",  "sector": "comm-services" },
+    { "symbol": "NFLX",  "sector": "comm-services" },
+    { "symbol": "TSLA",  "sector": "consumer-disc" },
+    { "symbol": "JPM",   "sector": "financials" },
+    { "symbol": "LLY",   "sector": "healthcare" },
+    { "symbol": "UNH",   "sector": "healthcare" },
+    { "symbol": "XOM",   "sector": "energy" },
+    { "symbol": "COST",  "sector": "consumer-staples" },
+    { "symbol": "SPY",   "sector": "etf-broad" },
+    { "symbol": "QQQ",   "sector": "etf-broad" },
+    { "symbol": "XLK",   "sector": "etf-sector" },
+    { "symbol": "XLE",   "sector": "etf-sector" }
+  ],
+
+  "blend": {
+    "weights": { "tech": 0.4, "research": 0.6 },
+    "thresholds": { "buy": 40, "add": 25, "trim": -15, "close": -30 },
+    "_note": "conviction = round(0.4*tech_score + 0.6*research_score), each leg in [-100,100]"
+  },
+
+  "risk": {
+    "risk_per_trade_pct": 1.0,
+    "max_position_pct": 25.0,
+    "max_open_positions": 6,
+    "slippage_pct": 0.05,
+    "fee_rate_pct": 0.005,
+    "daily_loss_limit_pct": 4.0,
+    "circuit_breaker_pct": 15.0,
+    "default_stop_atr_mult": 1.5,
+    "default_tp_atr_mult": 2.25
+  },
+
+  "data": {
+    "quote_primary": "https://query1.finance.yahoo.com/v8/finance/chart/{SYMBOL}?interval=1d&range=1mo",
+    "quote_secondary": "https://query2.finance.yahoo.com/v8/finance/chart/{SYMBOL}?interval=1d&range=1mo",
+    "quote_fallback": "websearch",
+    "note": "Routine fetches quotes via WebFetch (JSON). Pass prices to scripts/paper.mjs; the script never touches the network."
+  },
+
+  "timezone": { "user": "Asia/Jakarta (WIB, UTC+7)", "market": "America/New_York (ET)" }
+}

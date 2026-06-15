@@ -1,0 +1,68 @@
+{
+  "version": 1,
+  "market": "IDX",
+  "goal": "Beat the JCI (IDX Composite) total return on a long-only Indonesian paper account.",
+  "benchmark": { "symbol": "^JKSE", "proxy": "^JKSE", "label": "JCI (IDX Composite)" },
+  "currency": "IDR",
+  "currency_symbol": "Rp ",
+  "currency_decimals": 0,
+  "starting_capital": 10000000,
+  "fractional_shares": false,
+  "lot_size": 100,
+
+  "watchlist": [
+    { "symbol": "BBCA.JK", "sector": "banks" },
+    { "symbol": "BBRI.JK", "sector": "banks" },
+    { "symbol": "BMRI.JK", "sector": "banks" },
+    { "symbol": "BBNI.JK", "sector": "banks" },
+    { "symbol": "TLKM.JK", "sector": "telecom" },
+    { "symbol": "ASII.JK", "sector": "conglomerate-auto" },
+    { "symbol": "UNTR.JK", "sector": "heavy-equipment" },
+    { "symbol": "ICBP.JK", "sector": "consumer-staples" },
+    { "symbol": "INDF.JK", "sector": "consumer-staples" },
+    { "symbol": "UNVR.JK", "sector": "consumer-staples" },
+    { "symbol": "AMRT.JK", "sector": "consumer-retail" },
+    { "symbol": "KLBF.JK", "sector": "healthcare" },
+    { "symbol": "SMGR.JK", "sector": "cement-infra" },
+    { "symbol": "ADRO.JK", "sector": "energy-coal" },
+    { "symbol": "PGAS.JK", "sector": "energy-gas" },
+    { "symbol": "ANTM.JK", "sector": "metals-mining" },
+    { "symbol": "MDKA.JK", "sector": "metals-mining" },
+    { "symbol": "GOTO.JK", "sector": "tech" }
+  ],
+
+  "blend": {
+    "weights": { "tech": 0.4, "research": 0.6 },
+    "thresholds": { "buy": 40, "add": 25, "trim": -15, "close": -30 },
+    "_note": "conviction = round(0.4*tech_score + 0.6*research_score), each leg in [-100,100]"
+  },
+
+  "risk": {
+    "risk_per_trade_pct": 1.0,
+    "max_position_pct": 25.0,
+    "max_open_positions": 6,
+    "slippage_pct": 0.1,
+    "fee_rate_pct": 0.2,
+    "daily_loss_limit_pct": 4.0,
+    "circuit_breaker_pct": 15.0,
+    "default_stop_atr_mult": 1.5,
+    "default_tp_atr_mult": 2.25,
+    "_fees_note": "IDX round-trip ~0.4-0.5%: modeled as 0.2%/side fee + 0.1% slippage (IDX less liquid than US large caps). Sell-side is really heavier (0.1% sales tax); single rate is a paper simplification."
+  },
+
+  "data": {
+    "quote_primary": "https://query1.finance.yahoo.com/v8/finance/chart/{SYMBOL}?interval=1d&range=1mo",
+    "quote_secondary": "https://query2.finance.yahoo.com/v8/finance/chart/{SYMBOL}?interval=1d&range=1mo",
+    "quote_fallback": "websearch",
+    "index_symbol_encoded": "%5EJKSE",
+    "note": "Yahoo serves .JK tickers + ^JKSE in IDR. Routine fetches via WebFetch; pass prices to scripts/paper.mjs (script never touches the network)."
+  },
+
+  "session": {
+    "exchange": "IDX (Bursa Efek Indonesia)",
+    "timezone": "Asia/Jakarta (WIB, UTC+7) — same as the user; no DST ever",
+    "hours_wib": "Sesi I 09:00-12:00 WIB; lunch 12:00-13:30; Sesi II 13:30-16:00 WIB (close 16:00)",
+    "settlement": "T+2",
+    "lot": "round 100-share lots; no fractional shares"
+  }
+}

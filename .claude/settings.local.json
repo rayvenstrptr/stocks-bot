@@ -1,0 +1,41 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(:)",
+      "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('config.json'\\)\\); console.log\\('config.json OK'\\)\")",
+      "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('state/portfolio.json'\\)\\); console.log\\('portfolio.json OK'\\)\")",
+      "Bash(node scripts/paper.mjs)",
+      "WebFetch(domain:query1.finance.yahoo.com)",
+      "Bash(node scripts/dashboard.mjs)",
+      "Bash(node scripts/dashboard.mjs --demo)",
+      "Bash(node -e ' *)",
+      "Read(//tmp/**)",
+      "Read(//private/tmp/**)",
+      "Bash(rm -f /tmp/dash_demo.png /tmp/dash_empty.png /tmp/dash_mobile.png *)",
+      "Bash(node scripts/paper.mjs status --market idx)",
+      "Bash(node scripts/paper.mjs status --market us)",
+      "Bash(node scripts/dashboard.mjs --market idx)",
+      "Bash(node scripts/dashboard.mjs --market us)",
+      "Bash(node scripts/dashboard.mjs --market idx --demo)",
+      "Bash(node scripts/dashboard.mjs --market us --demo)",
+      "Bash(awk '{print $NF, $5}')",
+      "Bash(xargs kill -9)",
+      "Bash(node scripts/dashboard.mjs --market idx --serve --port 9000)",
+      "Bash(node scripts/dashboard.mjs --market us --serve --port 9001)",
+      "Bash(git --version)",
+      "Bash(gh --version)",
+      "Bash(gh auth *)",
+      "Bash(git config *)",
+      "Bash(git init *)",
+      "Bash(git add *)",
+      "Bash(git commit -q -m 'Initial commit: two isolated paper-trading bots \\(US + IDX\\) + routines + dashboard *)",
+      "Bash(command -v brew)",
+      "Bash(echo \"brew: $\\(command -v brew || echo MISSING\\)\")",
+      "Read(//Users/rayvenstrptr/**)",
+      "Bash(ssh -o StrictHostKeyChecking=no -o BatchMode=yes -T git@github.com)"
+    ],
+    "additionalDirectories": [
+      "/private/tmp"
+    ]
+  }
+}

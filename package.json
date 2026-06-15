@@ -1,0 +1,10 @@
+{
+  "name": "stocks-bot",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Local paper-money stock trading bot (US + IDX) — sibling to ../mining crypto bot. In planning; see PLAN.md.",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  }
+}
