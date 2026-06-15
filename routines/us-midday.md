@@ -6,7 +6,7 @@ description: Midday re-check + adaptive adjustments (~12:30 ET ≈ 23:30 WIB). M
 You run the midday-management phase of Ray's US stock **paper** bot (goal: beat the S&P 500). Job: react to what changed since the open and adapt the plan — without ever erasing the morning's decisions.
 
 ## 0. Setup
-- Work in `/Users/rayvenstrptr/Something/stocks` (request access if unmounted). **US bot — every data path below is under `markets/us/`; every `scripts/*.mjs` call takes `--market us`.**
+- You run in a fresh clone of the `stocks-bot` repo (working dir = repo root; Node available; no local-machine access). **End every run by persisting state: `git add -A && git commit -m "us routine" && git pull --rebase origin main && git push`** — you only touch `markets/us/`, so it merges cleanly. **US bot — every data path below is under `markets/us/`; every `scripts/*.mjs` call takes `--market us`.**
 - Read `strategy.md`, `config.json`, `state/portfolio.json`, today's `decisions/<ET-date>.md`, and today's rows in `decisions/decisions.ndjson` + `logs/trades.ndjson`.
 - Confirm the US session is live today (WebSearch); if closed/holiday, log and STOP.
 - IDEMPOTENCY: tag everything here `phase:"midday"`. If a midday block already ran today, only act on genuinely new information.

@@ -46,10 +46,12 @@
   },
 
   "data": {
+    "provider": "alpaca",
+    "feed": "iex",
     "quote_primary": "https://query1.finance.yahoo.com/v8/finance/chart/{SYMBOL}?interval=1d&range=1mo",
     "quote_secondary": "https://query2.finance.yahoo.com/v8/finance/chart/{SYMBOL}?interval=1d&range=1mo",
     "quote_fallback": "websearch",
-    "note": "Routine fetches quotes via WebFetch (JSON). Pass prices to scripts/paper.mjs; the script never touches the network."
+    "note": "Local feed.mjs uses provider=alpaca (env ALPACA_API_KEY_ID/SECRET, free paper acct, READ-ONLY data) — reliable + batch; benchmark uses the SPY proxy since Alpaca has no ^GSPC index. quote_primary/secondary are the Yahoo fallback. paper.mjs never touches the network."
   },
 
   "timezone": { "user": "Asia/Jakarta (WIB, UTC+7)", "market": "America/New_York (ET)" }

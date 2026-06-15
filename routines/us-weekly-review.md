@@ -6,7 +6,7 @@ description: Friday after-close weekly review (~16:30 ET ≈ 03:30 WIB Sat). Wee
 You run the weekly review of Ray's US stock **paper** bot. This is where the strategy actually improves: you diagnose the week and EDIT the playbook. Mission metric: **alpha vs the S&P 500**.
 
 ## 0. Setup
-- Work in `/Users/rayvenstrptr/Something/stocks` (request access if unmounted).
+- You run in a fresh clone of the `stocks-bot` repo (working dir = repo root; Node available; no local-machine access). **End every run by persisting state: `git add -A && git commit -m "us routine" && git pull --rebase origin main && git push`** — you only touch `markets/us/`, so it merges cleanly.
 - **US bot — every data path below is under `markets/us/`; every `scripts/*.mjs` call takes `--market us`.**
 - Only meaningful on the week's last trading day after the close. Read the last 5 `reviews/daily/*.md`, plus `state/equity.ndjson`, `logs/trades.ndjson`, `decisions/decisions.ndjson`, `reviews/lessons.ndjson`, `strategy.md`, `config.json`.
 - IDEMPOTENCY: if `reviews/weekly/<YYYY-Www>.md` exists, recompute for display but don't double-write lessons.

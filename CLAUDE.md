@@ -7,9 +7,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## What this is
 
 Two **completely isolated paper-money** stock-trading bots — **US** (USD, beat S&P 500) and **IDX**
-(Indonesia, IDR, beat JCI) — driven by **scheduled Claude cloud routines**, not a long-running local
-process. A routine fires a few times per session, does the research/judgment, calls the deterministic
-accounting engine, and updates its own files. No real money, no broker keys, no laptop required.
+(Indonesia, IDR, beat JCI).
+
+**Proving-phase architecture (since 2026-06):** the *judgment* runs as **2 scheduled cloud routines**
+(`idx-premarket`, `us-premarket` — research + commit the day plan); all the *mechanics* run on the
+user's Mac via a **local zero-dependency daemon** (`scripts/daemon.mjs`): `feed` (prices + indicators)
+→ `execute` (fill the plan, honor stops/TP) → `review` (mark-to-close, alpha, mechanical grading).
+Cloud and device sync through git (~2 hand-offs/day/bot: device pushes `technicals-<date>.json`, cloud
+pushes the day plan). **Prices: US via Alpaca** (keyed, reliable, batch — paper keys, READ-ONLY for
+data), **IDX via Yahoo** (Alpaca has no `.JK`). The 8 old open/midday/review cloud triggers are
+disabled; see [scripts/run-local.md](scripts/run-local.md). No real money, no broker orders.
+
+> The earlier model (10 cloud routines doing everything) is superseded — we pivoted because cloud
+> Yahoo 403s and the 5-phase inter-routine git hand-offs were heavy/racy. `paper.mjs` (the
+> deterministic engine) and `dashboard.mjs` are unchanged and reused by the local scripts.
 
 The two bots **share nothing at runtime**: separate equity, watchlist, logs, state, and dashboard.
 The only shared code is `scripts/paper.mjs` and `scripts/dashboard.mjs`, both selected per-bot with
@@ -51,6 +62,17 @@ node scripts/dashboard.mjs --market idx                   # regenerate markets/i
 node scripts/dashboard.mjs --market idx --demo            # dashboard-demo.html from synthetic data
 node scripts/dashboard.mjs --market idx --serve --port 9000   # live server (regenerates per request)
 node scripts/dashboard.mjs --market us  --serve --port 9001
+```
+
+```bash
+# Local device (proving phase) — runs on the user's Mac, drives paper.mjs with real prices
+node scripts/feed.mjs    --market idx              # prices+indicators → state/quotes.json + research/technicals-<date>.json
+node scripts/feed.mjs    --selftest                # offline indicator-math check (no network)
+node scripts/execute.mjs --market us --phase open  # fill today's plan + honor stops (idempotent); add --git to push
+node scripts/review.mjs  --market us --scope daily # mark-to-close, equity/alpha, mechanical grade; --scope weekly for the week
+node scripts/daemon.mjs  --schedule                # show market clocks + what's due (runs nothing)
+node scripts/daemon.mjs  --once-now --market idx --phase open   # run one action now (feed→execute)
+# US feed needs env ALPACA_API_KEY_ID + ALPACA_API_SECRET_KEY (free paper acct). See scripts/run-local.md.
 ```
 
 There is **no build, no lint, no test suite.** To validate the pipeline end-to-end against throwaway
@@ -122,9 +144,11 @@ runtime, so a mistimed cron (holiday / DST drift) just logs "market closed, no a
 
 ## Registering & operating routines
 
-Routines run via the **desktop Scheduled-tasks** mechanism (`/schedule`) — they mount this local folder,
-run in Anthropic's cloud, and update files here. A coding session **cannot** call `/schedule` for you
-(no GitHub-backed cloud env for this repo); the user types it. Flow: test once with the `*-pipeline-test`
-routine → when green, `/schedule` one entry per row in ROUTINES.md's schedule tables. See
-[ROUTINES.md](ROUTINES.md) for the WIB cron tables and the "what this CAN'T do" caveats (no real-time
-reaction; stops only checked when a routine fires, so price can gap through them).
+**Cloud side (2 premarket routines only):** they run via the GitHub-backed **remote-trigger API**
+against the `stocks-bot` repo (cloud env `env_01UCuwWffyYbfFutRx4VDzVu`) — clone, research, push the day
+plan. (This repo *is* GitHub-connected now; the Claude GitHub App must be installed on the repo-owning
+account.) **Device side:** the local daemon (`scripts/daemon.mjs`, launched by
+`ops/com.stocksbot.daemon.plist` at login) runs feed→execute→review and pushes state — operate it with
+the commands above and [scripts/run-local.md](scripts/run-local.md). Caveats: stops are only checked
+when the daemon ticks a phase (gap risk); if the Mac sleeps through a phase, the next phase's idempotent
+`execute` catches up; the US session is your WIB night, so the daemon `caffeinate`s the Mac through it.

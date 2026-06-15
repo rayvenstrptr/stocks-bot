@@ -9,3 +9,8 @@ node_modules/
 
 # one-off pipeline-test scratch
 *_TEST*
+
+# local daemon runtime (device-only; technicals-*.json ARE tracked so cloud premarket reads them)
+.daemon-state.json
+markets/daemon*.log
+markets/*/state/quotes.json

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  LaunchAgent TEMPLATE for the local stocks-bot daemon (proving phase).
+  This committed copy has PLACEHOLDERS — never commit real keys. To install:
+    1) cp ops/com.stocksbot.daemon.plist ~/Library/LaunchAgents/
+    2) edit ~/Library/LaunchAgents/com.stocksbot.daemon.plist:
+         - set the full `node` path  (run: which node)
+         - set ALPACA_API_KEY_ID / ALPACA_API_SECRET_KEY  (free paper account at alpaca.markets → Paper keys)
+    3) launchctl load ~/Library/LaunchAgents/com.stocksbot.daemon.plist
+       (unload to stop:  launchctl unload ~/Library/LaunchAgents/com.stocksbot.daemon.plist)
+  See scripts/run-local.md for the caffeinate/pmset notes and verification.
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>com.stocksbot.daemon</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>REPLACE_WITH_NODE_PATH</string>   <!-- e.g. /opt/homebrew/bin/node  (run: which node) -->
+    <string>/Users/rayvenstrptr/Something/stocks/scripts/daemon.mjs</string>
+  </array>
+
+  <key>WorkingDirectory</key>
+  <string>/Users/rayvenstrptr/Something/stocks</string>
+
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>ALPACA_API_KEY_ID</key><string>REPLACE_WITH_PAPER_KEY_ID</string>
+    <key>ALPACA_API_SECRET_KEY</key><string>REPLACE_WITH_PAPER_SECRET</string>
+    <key>PATH</key><string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+  </dict>
+
+  <key>RunAtLoad</key><true/>
+  <key>KeepAlive</key><true/>
+
+  <key>StandardOutPath</key><string>/Users/rayvenstrptr/Something/stocks/markets/daemon.out.log</string>
+  <key>StandardErrorPath</key><string>/Users/rayvenstrptr/Something/stocks/markets/daemon.err.log</string>
+</dict>
+</plist>

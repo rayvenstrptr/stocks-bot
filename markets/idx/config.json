@@ -51,11 +51,12 @@
   },
 
   "data": {
+    "provider": "yahoo",
     "quote_primary": "https://query1.finance.yahoo.com/v8/finance/chart/{SYMBOL}?interval=1d&range=1mo",
     "quote_secondary": "https://query2.finance.yahoo.com/v8/finance/chart/{SYMBOL}?interval=1d&range=1mo",
     "quote_fallback": "websearch",
     "index_symbol_encoded": "%5EJKSE",
-    "note": "Yahoo serves .JK tickers + ^JKSE in IDR. Routine fetches via WebFetch; pass prices to scripts/paper.mjs (script never touches the network)."
+    "note": "Local feed.mjs uses provider=yahoo (Alpaca has no .JK coverage). Yahoo serves .JK + ^JKSE in IDR; rate-limits shared IPs but works from a home ISP. paper.mjs never touches the network."
   },
 
   "session": {

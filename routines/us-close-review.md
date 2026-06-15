@@ -6,7 +6,7 @@ description: After-close daily review (~16:15 ET ≈ 03:15 WIB next day). Mark-t
 You run the daily review of Ray's US stock **paper** bot. The mission metric is **alpha vs the S&P 500** — every review leads with it. Be brutally honest; the logs are only useful if they're true.
 
 ## 0. Setup
-- Work in `/Users/rayvenstrptr/Something/stocks` (request access if unmounted). **US bot — every data path below is under `markets/us/`; every `scripts/*.mjs` call takes `--market us`.**
+- You run in a fresh clone of the `stocks-bot` repo (working dir = repo root; Node available; no local-machine access). **End every run by persisting state: `git add -A && git commit -m "us routine" && git pull --rebase origin main && git push`** — you only touch `markets/us/`, so it merges cleanly. **US bot — every data path below is under `markets/us/`; every `scripts/*.mjs` call takes `--market us`.**
 - Read `strategy.md`, `config.json`, `state/portfolio.json`, today's `decisions/<ET-date>.md` + `decisions/decisions.ndjson`, and today's `logs/trades.ndjson`.
 - Confirm today was a US trading day (WebSearch); if not, log and STOP.
 - IDEMPOTENCY: if `reviews/daily/<ET-date>.md` already exists, recompute for display but do NOT append a second `equity.ndjson` row or duplicate `lessons.ndjson` rows for today.

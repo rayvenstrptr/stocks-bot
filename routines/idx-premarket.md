@@ -17,7 +17,7 @@ Grade any `markets/idx/decisions/decisions.ndjson` calls now clearly resolved (H
 ## 2. Research the last 24h — WebSearch everything, cite per claim, drop the unsourced
 - **Regime/macro:** rupiah (USD/IDR), BI policy/RDG, **foreign net flows**, oil/coal/nickel/CPO, regional risk tone, and the JCI (`^JKSE`) prior close + level. The strategy.md notes the Iran–US peace / oil-down regime — **re-verify it, don't assume**.
 - **Per watchlist name (`.JK`):** company news, sector tone, credible local finance sentiment, pre-open indicative move.
-- **Prices/technicals:** WebFetch Yahoo chart JSON (`markets/idx/config.json` → `data.quote_primary`, `{SYMBOL}`→ticker e.g. `BBCA.JK`; index `%5EJKSE`). Judge EMA9/21, RSI(14), ATR%, price vs EMA200. Fallback WebSearch.
+- **Prices/technicals (READ from the device feed — don't fetch):** read `markets/idx/research/technicals-<date>.json` (computed + pushed by the device's `feed.mjs` just before this run, from Yahoo) for per-symbol `last, prev_close, gap_pct, ema9, ema21, ema200, rsi14, atr_pct, above_ema200` + the JCI level — use for the **TechScore**. If that file is missing or its `date` ≠ today (the device was off), THEN fall back to WebFetch/WebSearch and note it in `markets/idx/logs/bot.log`.
 
 ## 3. Score each name (blended model — see strategy.md)
 TechScore + ResearchScore ∈ [−100,+100]; **Conviction = round(0.4·Tech + 0.6·Research)**. APPEND one row per name to `markets/idx/research/research.ndjson`:

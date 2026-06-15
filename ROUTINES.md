@@ -1,4 +1,11 @@
-# ROUTINES — two isolated paper bots, run by Claude cloud routines
+# ROUTINES — two isolated paper bots
+
+> **Proving-phase pivot (2026-06):** no longer 10 cloud routines. Now **2 cloud routines**
+> (`idx-premarket`, `us-premarket`) + a **local daemon** (`scripts/daemon.mjs`) on the Mac doing
+> feed→execute→review. The 8 open/midday/review cloud triggers are **disabled**. Live operating guide:
+> **[scripts/run-local.md](scripts/run-local.md)**; current architecture: CLAUDE.md "What this is". The
+> cron tables below now describe the *old* cloud phases (kept for reference) and the premarket times the
+> daemon aligns its `feed` push to.
 
 This repo runs **two completely separate paper-trading bots**, each driven by scheduled cloud
 routines (no laptop needed — they run in Anthropic's cloud, mount this folder, update their own

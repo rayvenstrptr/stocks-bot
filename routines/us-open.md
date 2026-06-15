@@ -6,7 +6,7 @@ description: Execute the committed day plan on paper at the US open (~09:30 ET �
 You operate the execution phase of Ray's US stock **paper** bot (goal: beat the S&P 500). You execute the plan written by `stocks-premarket`. Paper only — fills are simulated by `scripts/paper.mjs`.
 
 ## 0. Setup
-- Work in `/Users/rayvenstrptr/Something/stocks` (request access if unmounted). **US bot — every data path below is under `markets/us/`; every `scripts/*.mjs` call takes `--market us`.**
+- You run in a fresh clone of the `stocks-bot` repo (working dir = repo root; Node available; no local-machine access). **End every run by persisting state: `git add -A && git commit -m "us routine" && git pull --rebase origin main && git push`** — you only touch `markets/us/`, so it merges cleanly. **US bot — every data path below is under `markets/us/`; every `scripts/*.mjs` call takes `--market us`.**
 - Read `strategy.md`, `config.json`, `state/portfolio.json`, and today's `decisions/<ET-date>.md` (the plan). If today's plan file is missing, append a note to `logs/bot.log` and STOP (nothing to execute).
 - Confirm via WebSearch the US market is open today; if closed, log and STOP.
 - IDEMPOTENCY: check `logs/trades.ndjson` for entries with today's ET date and `phase":"open"`. If the plan's orders are already filled, do NOT re-fill — just report current status.
