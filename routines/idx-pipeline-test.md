@@ -6,7 +6,7 @@ description: One-time end-to-end test of the IDX bot pipeline against THROWAWAY 
 ONE-TIME IDX PIPELINE TEST — prove the IDX bot runs end-to-end in this (cloud) environment TODAY, writing ONLY to throwaway files. **Do NOT modify any live file under `markets/idx/`.**
 
 ## 0. Setup
-- Work in `/Users/rayvenstrptr/Something/stocks` (request access if unmounted; report whether it mounted — finding #1). Run `node --version`.
+- You run in a fresh clone of the `stocks-bot` repo (working dir = repo root) — confirm the clone is present as finding #1. Node available; no local-machine access. **Do NOT commit or push — this test only writes to `/tmp`.** Run `node --version`.
 
 ## 1. Data access check (critical)
 WebFetch the Yahoo chart JSON for **BBCA.JK, BBRI.JK, ASII.JK** and the index **`%5EJKSE`** (from `markets/idx/config.json` `data.quote_primary`). Confirm `chart.result[0].meta.regularMarketPrice` + `.previousClose` parse and currency is **IDR**. If WebFetch is blocked, fall back to WebSearch and RECORD that the fallback was needed.

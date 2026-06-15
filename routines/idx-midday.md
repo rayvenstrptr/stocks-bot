@@ -6,7 +6,7 @@ description: IDX midday re-check + adaptive adjustments after the lunch break (~
 Midday-management phase of Ray's **IDX** paper bot (beat the JCI). Files under `markets/idx/`; every `scripts/*.mjs` call takes `--market idx`.
 
 ## 0. Setup
-- Work in `/Users/rayvenstrptr/Something/stocks` (request access if unmounted). Read `markets/idx/strategy.md`, `markets/idx/config.json`, `markets/idx/state/portfolio.json`, today's `markets/idx/decisions/<date>.md`, and today's rows in `markets/idx/decisions/decisions.ndjson` + `markets/idx/logs/trades.ndjson`.
+- You run in a fresh clone of the `stocks-bot` repo (working dir = repo root; Node available; no local-machine access). **End every run by persisting state: `git add -A && git commit -m "idx routine" && git pull --rebase origin main && git push`** — you only touch `markets/idx/`, so it merges cleanly. Read `markets/idx/strategy.md`, `markets/idx/config.json`, `markets/idx/state/portfolio.json`, today's `markets/idx/decisions/<date>.md`, and today's rows in `markets/idx/decisions/decisions.ndjson` + `markets/idx/logs/trades.ndjson`.
 - Confirm the afternoon session is live (IDX reopens 13:30 WIB after lunch). If closed/holiday, log and STOP. IDEMPOTENCY: tag everything `"phase":"midday"`; if a midday block already ran, act only on genuinely new info.
 
 ## 1. Re-check

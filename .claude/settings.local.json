@@ -32,7 +32,14 @@
       "Bash(command -v brew)",
       "Bash(echo \"brew: $\\(command -v brew || echo MISSING\\)\")",
       "Read(//Users/rayvenstrptr/**)",
-      "Bash(ssh -o StrictHostKeyChecking=no -o BatchMode=yes -T git@github.com)"
+      "Bash(ssh -o StrictHostKeyChecking=no -o BatchMode=yes -T git@github.com)",
+      "Bash(git credential-osxkeychain *)",
+      "Bash(~/.local/bin/gh auth *)",
+      "Bash(~/.local/bin/gh repo *)",
+      "Bash(git commit *)",
+      "Bash(git push *)",
+      "Bash(uuidgen)",
+      "Bash(echo \"uuid: $\\(uuidgen)"
     ],
     "additionalDirectories": [
       "/private/tmp"

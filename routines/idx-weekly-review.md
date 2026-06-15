@@ -6,7 +6,7 @@ description: IDX Friday weekly review (~16:15 WIB). Week vs JCI, then EDIT marke
 Weekly review of Ray's **IDX** paper bot — where the strategy actually improves. Mission metric: **alpha vs the JCI**. Files under `markets/idx/`; every `scripts/*.mjs` call takes `--market idx`.
 
 ## 0. Setup
-- Work in `/Users/rayvenstrptr/Something/stocks` (request access if unmounted). On the week's last IDX trading day after the close, read the last 5 `markets/idx/reviews/daily/*.md`, plus `markets/idx/state/equity.ndjson`, `logs/trades.ndjson`, `decisions/decisions.ndjson`, `reviews/lessons.ndjson`, `strategy.md`, `config.json`.
+- You run in a fresh clone of the `stocks-bot` repo (working dir = repo root; Node available; no local-machine access). **End every run by persisting state: `git add -A && git commit -m "idx routine" && git pull --rebase origin main && git push`** — you only touch `markets/idx/`, so it merges cleanly. On the week's last IDX trading day after the close, read the last 5 `markets/idx/reviews/daily/*.md`, plus `markets/idx/state/equity.ndjson`, `logs/trades.ndjson`, `decisions/decisions.ndjson`, `reviews/lessons.ndjson`, `strategy.md`, `config.json`.
 - IDEMPOTENCY: if `markets/idx/reviews/weekly/<YYYY-Www>.md` exists, recompute for display, don't double-write lessons.
 
 ## 1. Compute the week

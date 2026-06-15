@@ -6,7 +6,7 @@ description: IDX after-close daily review (~16:15 WIB). Mark-to-close, P&L, grad
 Daily review of Ray's **IDX** paper bot. The headline metric is **alpha vs the JCI**. Files under `markets/idx/`; every `scripts/*.mjs` call takes `--market idx`. Be brutally honest.
 
 ## 0. Setup
-- Work in `/Users/rayvenstrptr/Something/stocks` (request access if unmounted). Read `markets/idx/strategy.md`, `markets/idx/config.json`, `markets/idx/state/portfolio.json`, today's `markets/idx/decisions/<date>.md` + `decisions/decisions.ndjson` + `logs/trades.ndjson`.
+- You run in a fresh clone of the `stocks-bot` repo (working dir = repo root; Node available; no local-machine access). **End every run by persisting state: `git add -A && git commit -m "idx routine" && git pull --rebase origin main && git push`** — you only touch `markets/idx/`, so it merges cleanly. Read `markets/idx/strategy.md`, `markets/idx/config.json`, `markets/idx/state/portfolio.json`, today's `markets/idx/decisions/<date>.md` + `decisions/decisions.ndjson` + `logs/trades.ndjson`.
 - Confirm today was an IDX trading day; else log and STOP. IDEMPOTENCY: if `markets/idx/reviews/daily/<date>.md` exists, recompute for display but do NOT append a second `equity.ndjson` row or duplicate lessons.
 
 ## 1. Closing prices → mark → snapshot

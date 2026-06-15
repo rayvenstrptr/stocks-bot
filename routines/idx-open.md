@@ -6,7 +6,7 @@ description: Execute the IDX day plan on paper at the 09:00 WIB open in whole 10
 Execution phase of Ray's **IDX** paper bot (beat the JCI). Files live under `markets/idx/`; every `scripts/*.mjs` call takes `--market idx`. Paper fills are simulated by `scripts/paper.mjs`.
 
 ## 0. Setup
-- Work in `/Users/rayvenstrptr/Something/stocks` (request access if unmounted). Read `markets/idx/strategy.md`, `markets/idx/config.json`, `markets/idx/state/portfolio.json`, and today's `markets/idx/decisions/<date>.md` (the plan). If the plan file is missing, append a note to `markets/idx/logs/bot.log` and STOP.
+- You run in a fresh clone of the `stocks-bot` repo (working dir = repo root; Node available; no local-machine access). **End every run by persisting state: `git add -A && git commit -m "idx routine" && git pull --rebase origin main && git push`** — you only touch `markets/idx/`, so it merges cleanly. Read `markets/idx/strategy.md`, `markets/idx/config.json`, `markets/idx/state/portfolio.json`, and today's `markets/idx/decisions/<date>.md` (the plan). If the plan file is missing, append a note to `markets/idx/logs/bot.log` and STOP.
 - Confirm the IDX is open today (WebSearch). IDEMPOTENCY: if `markets/idx/logs/trades.ndjson` already has today's `"phase":"open"` fills, report status and STOP.
 
 ## 1. Prices
